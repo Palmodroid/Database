@@ -14,9 +14,11 @@ import digitalgarden.mecsek.database.books.BooksControllActivity;
 import digitalgarden.mecsek.database.medications.MedicationsControllActivity;
 import digitalgarden.mecsek.database.patients.PatientsControllActivity;
 import digitalgarden.mecsek.database.pills.PillsControllActivity;
+import digitalgarden.mecsek.exportimport.AsyncTaskDialogFragment;
 import digitalgarden.mecsek.permission.PermissionRequestDialog;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.selectfile.SelectFileActivity;
+import digitalgarden.mecsek.selectfile.SelectFileActivity.Mode;
 
 import static digitalgarden.mecsek.Debug.initScribe;
 import static digitalgarden.mecsek.MainChooserDialogFragment.Type.CONFIRM_IMPORT;
@@ -291,8 +293,8 @@ public class MainChooserActivity extends FragmentActivity implements PermissionR
 				{
 				Scribe.note("Confirm Import - Import started");
 				
-				//AsyncTaskDialogFragment asyncTaskDialogFragment = AsyncTaskDialogFragment.newInstance( Mode.IMPORT, portingFile );
-				//asyncTaskDialogFragment.show(getSupportFragmentManager(), "DIALOG");
+				AsyncTaskDialogFragment asyncTaskDialogFragment = AsyncTaskDialogFragment.newInstance( Mode.IMPORT, portingFile );
+				asyncTaskDialogFragment.show(getSupportFragmentManager(), "DIALOG");
 				break;
 				}
 			case CONFIRM_NEW_EXPORT:
@@ -300,8 +302,8 @@ public class MainChooserActivity extends FragmentActivity implements PermissionR
 				{
 				Scribe.note("Confirm NEW/OVERWRITING Export - Export Started");
 				
-				//AsyncTaskDialogFragment asyncTaskDialogFragment = AsyncTaskDialogFragment.newInstance( Mode.EXPORT, portingFile );
-				//asyncTaskDialogFragment.show(getSupportFragmentManager(), "DIALOG");
+				AsyncTaskDialogFragment asyncTaskDialogFragment = AsyncTaskDialogFragment.newInstance( Mode.EXPORT, portingFile );
+				asyncTaskDialogFragment.show(getSupportFragmentManager(), "DIALOG");
 				break;
 				}
 			}
