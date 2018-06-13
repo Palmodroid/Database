@@ -1,0 +1,30 @@
+@s7[Adatbázisok leírása]
+
+Az @it[SQLite] adatbázis használatához el kell készítenünk az adatbázis szerkezetének tükörképét a program számára.
+
+A program akár több @bo[adatbázist], azokon belül @bo[táblát], azokban pedig @bo[mezőket] (vagy oszlopokat) tartalmazhat. Mindezeket egy singleton @bo[Sql] osztály fogja egybe.
+
+Az leíró rendszert úgy szeretném elkészíteni, hogy az egyes elemek a lehető legegyszerűbben előhívhatóak és felhasználhatóak legyenek.
+
+Az egyes @bo[MEZŐ]-k emiatt egyedi nevet kapnak, mégpedig úgy, hogy nevüket kiegészítjük az adott tábla azonosító id-jével. 
+
+Mivel minden egyes mező egyedi névvel rendelkezik, ezeket a neveket közösen tároljuk az @bo[Sql] szintjén, ahonnét a @it[field( index )] hívja elő. Az @bo[_ID] mező speciális, minden egyes osztály számára létezik, erre készítünk, egy kényelmi @it[field_id] utasítást.
+
+A @bo[tábla] szintjén készítjük el a @it[fullField( index )] és @it[fullField_id] utasítást, mely ugyan a fentieket hívja meg, de visszatérési értékként kiegészíti a tábla saját nevével.
+
+A @bo[TÁBLÁK] adatbázisok közötti egyedi nevének nincs ekkora jelentősége (és úgyis csak egy adatbázist szeretnénk használni)
+
+A könnyű visszakeresés lehetősége miatt az összes @bo[táblát] is hasonlóan, az @bo[Sql] szintjén tároljuk. Ezeket a @it[table(index)] utasítással kérhetjük el.
+
+Szükséges azonban egy tábla-listát az adatbázis szintjén is készíteni, hogy a minden táblára érvényes feladatokat könnyen végrehajthassuk. Egy adatbázis esetén ez természetesen azonos lesz az @bo[Sql] szintjén lévő listával. A lista allistáját a feldolgozás során az @bo[adatbázis] megkapja, és az @it[allTables()] lekérésre visszaadja.
+
+Mindezeket a metódusokat @bo[static]-ként készítjük el, melyek az @bo[Sql singleton]-ból kiindulva adják vissza az adatokat. Lényeges, hogy az egyes szinteken a visszaadott index-et tároljuk, mert az egyes adatokra a későbbiekben ezekkel tudunk hivatkozni.
+
+Fontos, hogy először minden táblát hozzá kell adnunk az adatbázishoz, majd utána mehetünk végig minden egyes táblán, és adhatjuk hozzá az egyes táblák mezőit. Az adatbázisoknál ez nem olyan lényeges, mert nem hivatkozhatnak egymásra.
+
+
+NEM JÓ AZ EGÉSZ, MERT A STATIC METÓDUS NEM TUDJA, HOGY MELYIK TÁBLÁBAN VAN!!!!
+
+Megvan. Tároljuk az id-t is vele, ill a fullField_id(TABLE INDEX) metódust készítjük el!!!
+
+Az allTables meg ugyanígy mehet a Database indexével
