@@ -1,57 +1,50 @@
 package digitalgarden.mecsek.database.pills;
 
 import android.content.ContentValues;
-import android.net.Uri;
 import android.os.Bundle;
 
 import digitalgarden.mecsek.R;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
-import static digitalgarden.mecsek.database.DatabaseMirror.field_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
 
 
-public class PillsListFragment extends GeneralListFragment
+public class PillsListFragment extends GenericListFragment
 	{
 	// static factory method
 	// http://www.androiddesignpatterns.com/2012/05/using-newinstance-to-instantiate.html
-	public static GeneralListFragment newInstance( long select )
+	public static GenericListFragment newInstance(long select )
 		{
-		GeneralListFragment listFragmenet = new PillsListFragment();
+		GenericListFragment listFragmenet = new PillsListFragment();
 	
 		Bundle args = new Bundle();
 
 		args.putLong( SELECTED_ITEM, select );
 		// args.putString( LIMITED_COLUMN, null); Sem ez, sem LIMITED_ITEM nem kell!
 
-		args.putStringArray( FILTERED_COLUMN, new String[] { field(PillsTable.SEARCH)});
-		args.putString( ORDERED_COLUMN, field(PillsTable.NAME));
+		args.putStringArray( FILTERED_COLUMN, new String[] { column(PillsTable.SEARCH)});
+		args.putString( ORDERED_COLUMN, column(PillsTable.NAME));
 
 		listFragmenet.setArguments(args);
 		
 		return listFragmenet;
 		}
 
-	
-	protected int getLoaderId()
-		{
-		return table(PILLS).id();
-		}
+    @Override
+    protected int defineTableIndex()
+        {
+        return PILLS;
+        }
 
-	@Override
-	protected Uri getContentUri()
-		{
-		return table(PILLS).contentUri();
-		}
-
-	@Override
+    @Override
 	protected String[] getProjection()
 		{
 		String[] projection = new String[] {
-				field_id(),
-				field(PillsTable.NAME) };
+				column_id(),
+				column(PillsTable.NAME) };
 
 		return projection;
 		}
@@ -68,8 +61,8 @@ public class PillsListFragment extends GeneralListFragment
 		// Fields from the database (projection)
 		// Must include the _id column for the adapter to work
 		String[] from = new String[] {
-				field(PillsTable.NAME),
-				field_id() };
+				column(PillsTable.NAME),
+				column_id() };
 
 		return from;
 		}
@@ -90,19 +83,19 @@ public class PillsListFragment extends GeneralListFragment
 		{
 		ContentValues values = new ContentValues();
 
-		values.put( field(PillsTable.NAME), "Algopyrin");
+		values.put( column(PillsTable.NAME), "Algopyrin");
 		getActivity().getContentResolver().insert( table(PILLS).contentUri(), values);
 
-		values.put( field(PillsTable.NAME), "Proxelan");
+		values.put( column(PillsTable.NAME), "Proxelan");
 		getActivity().getContentResolver().insert( table(PILLS).contentUri(), values);
 
-		values.put( field(PillsTable.NAME), "Politrate");
+		values.put( column(PillsTable.NAME), "Politrate");
 		getActivity().getContentResolver().insert( table(PILLS).contentUri(), values);
 
-		values.put( field(PillsTable.NAME), "Abirateron");
+		values.put( column(PillsTable.NAME), "Abirateron");
 		getActivity().getContentResolver().insert( table(PILLS).contentUri(), values);
 
-		values.put( field(PillsTable.NAME), "Enzalutamid");
+		values.put( column(PillsTable.NAME), "Enzalutamid");
 		getActivity().getContentResolver().insert( table(PILLS).contentUri(), values);
 		}
 	}

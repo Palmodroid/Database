@@ -1,15 +1,20 @@
 package digitalgarden.mecsek.formtypes;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
-import digitalgarden.mecsek.templates.GeneralEditFragment;
+import digitalgarden.mecsek.templates.GenericEditFragment;
+
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 
 
 // Ez a mező csak annyival tud többet, hogy az értékváltozást jelzi
+// 18.06.14 - és belepakoljuk a hozzárendelt értékekekt is
 public class EditTextField extends EditText
 	{
     public EditTextField(Context context) 
@@ -27,8 +32,17 @@ public class EditTextField extends EditText
         super(context, attrs, defStyle);
     	}
 
-	public void connect(final GeneralEditFragment form)
+    private int fieldIndex;
+
+    public int getFieldIndex()
+        {
+        return fieldIndex;
+        }
+
+	public void connect(final GenericEditFragment form, int fieldIndex)
 		{
+        this.fieldIndex = fieldIndex;
+
 		addTextChangedListener(new TextWatcher() 
         	{
 	        @Override
@@ -53,4 +67,13 @@ public class EditTextField extends EditText
         	});
 		}
 
-	}
+    public void setField( Cursor cursor )
+        {
+        setText(cursor.getString(cursor.getColumnIndexOrThrow( column(getFieldIndex() ))));
+        }
+
+    public void getField(ContentValues values)
+        {
+        values.put(column( getFieldIndex()), getText().toString() );
+        }
+    }

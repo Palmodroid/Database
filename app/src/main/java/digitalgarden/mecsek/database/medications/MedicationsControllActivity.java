@@ -6,26 +6,26 @@ package digitalgarden.mecsek.database.medications;
 
 import android.content.Intent;
 
-import digitalgarden.mecsek.templates.GeneralControllActivity;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericControllActivity;
+import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
 
 
-public class MedicationsControllActivity extends GeneralControllActivity
+public class MedicationsControllActivity extends GenericControllActivity
 	implements MedicationsListFragment.OnListReturnedListener, MedicationsEditFragment.OnFinishedListener
 	{
 
 	@Override
-	protected GeneralEditFragment createEditFragment()
+	protected GenericEditFragment createEditFragment()
 		{
 		return new MedicationsEditFragment();
 		}
 
 
 	@Override
-	protected GeneralListFragment createListFragment()
+	protected GenericListFragment createListFragment()
 		{
-		long pillIdLimit = getIntent().getLongExtra(GeneralListFragment.LIMITED_ITEM, -1L);
+		long pillIdLimit = getIntent().getLongExtra(GenericListFragment.LIMITED_ITEM, -1L);
 		return MedicationsListFragment.newInstance( pillIdLimit );
 		}
 

@@ -5,25 +5,25 @@ package digitalgarden.mecsek.database.authors;
 // http://stackoverflow.com/a/5796606
 
 
-import digitalgarden.mecsek.templates.GeneralControllActivity;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericControllActivity;
+import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
 
-public class AuthorsControllActivity extends GeneralControllActivity
+public class AuthorsControllActivity extends GenericControllActivity
 	implements AuthorsListFragment.OnListReturnedListener, AuthorsEditFragment.OnFinishedListener
 	{
 
 	@Override
-	protected GeneralEditFragment createEditFragment()
+	protected GenericEditFragment createEditFragment()
 		{
 		return new AuthorsEditFragment();
 		}
 
 
 	@Override
-	protected GeneralListFragment createListFragment()
+	protected GenericListFragment createListFragment()
 		{
-		long initiallySelectedItem = getIntent().getLongExtra(GeneralListFragment.SELECTED_ITEM, AuthorsListFragment.SELECT_DISABLED);
+		long initiallySelectedItem = getIntent().getLongExtra(GenericListFragment.SELECTED_ITEM, AuthorsListFragment.SELECT_DISABLED);
 		return AuthorsListFragment.newInstance( initiallySelectedItem );
 		}
 

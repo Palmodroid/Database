@@ -15,23 +15,23 @@ import digitalgarden.mecsek.formtypes.EditTextField;
 import digitalgarden.mecsek.formtypes.ForeignKey;
 import digitalgarden.mecsek.formtypes.ForeignTextField;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
+import digitalgarden.mecsek.templates.GenericEditFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.MEDICATIONS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
 
 
-public class MedicationsEditFragment extends GeneralEditFragment
+public class MedicationsEditFragment extends GenericEditFragment
 	{
 	private EditTextField medicationNameField;
-	private ForeignKey pillId = new ForeignKey( table(PILLS).contentUri() );
+	private ForeignKey pillId;
 	// Míg a címet a szöveg azonosítja, a szerzőt az id
 	// Nem lehet null, ezért -1 azonosítja a null-t Ezt ellenőrizni kell!!
 	private ForeignTextField foreignTextPill;
-	private ForeignKey patientId = new ForeignKey( table(PATIENTS).contentUri() );
+	private ForeignKey patientId;
 	private ForeignTextField foreignTextPatient;
     private ForeignTextField foreignTextPatientDob;
 
@@ -52,17 +52,30 @@ public class MedicationsEditFragment extends GeneralEditFragment
 		{
 		Scribe.note("MedicationsEditFragment setupFormLayout");
 
+        /**
+        addEditTextField( R.id.edittext_medication_name, MedicationsTable.NAME*** );
+
+        pillId = addForeignKey( MedicationsTable.PILL_ID***, PILLS, ((PillsControllActivity.class)), R.string.select_pill, medicationNameField);
+        patientId = addForeignKey( MedicationsTable.PATIENT_ID***, PATIENTS, ((PatientsControllActivity.class)), R.string.select_patient, medicationNameField);
+
+        addForeignTextField( R.id.edittext_pill, pillId, PillsTable.NAME );
+        addForeignTextField( R.id.edittext_patient, patientId, PatientsTable.NAME );
+        addForeignTextField( R.id.edittext_patient_dob, patientId, PatientsTable.DOB );
+        **/
+
         // EditTextField
         medicationNameField = (EditTextField) view.findViewById( R.id.edittext_medication_name );
-        medicationNameField.connect( this );
+        medicationNameField.connect( this, MedicationsTable.NAME );
 
         // ForeignKey
+        pillId = new ForeignKey( table(PILLS).contentUri() );
         pillId.connect( this );
         pillId.setupSelector( PillsControllActivity.class,
                 getActivity().getString( R.string.select_pill ),
                 medicationNameField );
 
 		// ForeignKey
+        patientId = new ForeignKey( table(PATIENTS).contentUri() );
 		patientId.connect( this );
 		patientId.setupSelector( PatientsControllActivity.class,
 				getActivity().getString( R.string.select_patient ),
@@ -70,15 +83,15 @@ public class MedicationsEditFragment extends GeneralEditFragment
 
 		// ForeignTextField
         foreignTextPill = (ForeignTextField) view.findViewById(R.id.edittext_pill);
-        foreignTextPill.link( pillId, field(PillsTable.NAME ));
+        foreignTextPill.link( pillId, column(PillsTable.NAME ));
 
 		// ForeignTextField
 		foreignTextPatient = (ForeignTextField) view.findViewById(R.id.edittext_patient);
-		foreignTextPatient.link( patientId, field(PatientsTable.NAME ));
+		foreignTextPatient.link( patientId, column(PatientsTable.NAME ));
 
         // ForeignTextField
         foreignTextPatientDob = (ForeignTextField) view.findViewById(R.id.edittext_patient_dob);
-        foreignTextPatientDob.link( patientId, field(PatientsTable.DOB ));
+        foreignTextPatientDob.link( patientId, column(PatientsTable.DOB ));
 
     	/*
 		setupListButton( BooksControllActivity.class,
@@ -94,28 +107,28 @@ public class MedicationsEditFragment extends GeneralEditFragment
 		Scribe.note("MedicationsEditFragment setupFieldsData");
 
 		String[] projection = {
-				field(MedicationsTable.PILL_ID),
-				field(MedicationsTable.PATIENT_ID),
-				field(MedicationsTable.NAME) };
+				column(MedicationsTable.PILL_ID),
+				column(MedicationsTable.PATIENT_ID),
+				column(MedicationsTable.NAME) };
 		Cursor cursor = getActivity().getContentResolver().query(getItemContentUri(), projection, null, null, null);
 
 		if (cursor != null) // Ez vajon kell? 
 			{
 			cursor.moveToFirst();
 
-            int column = cursor.getColumnIndexOrThrow( field(MedicationsTable.PILL_ID) );
+            int column = cursor.getColumnIndexOrThrow( column(MedicationsTable.PILL_ID) );
             if ( cursor.isNull( column ) )
                 pillId.setValue( -1L );
             else
                 pillId.setValue( cursor.getLong( column ) );
 
-			column = cursor.getColumnIndexOrThrow( field(MedicationsTable.PATIENT_ID) );
+			column = cursor.getColumnIndexOrThrow( column(MedicationsTable.PATIENT_ID) );
 			if ( cursor.isNull( column ) )
 				patientId.setValue( -1L );
 			else
 				patientId.setValue( cursor.getLong( column ) );
 
-			medicationNameField.setText(cursor.getString(cursor.getColumnIndexOrThrow( field(MedicationsTable.NAME) )));
+			medicationNameField.setText(cursor.getString(cursor.getColumnIndexOrThrow( column(MedicationsTable.NAME) )));
 
             // Always close the cursor
 			cursor.close();
@@ -127,20 +140,20 @@ public class MedicationsEditFragment extends GeneralEditFragment
 		{
 		Scribe.note("MedicationsEditFragment getFieldsData");
 
-		String name = medicationNameField.getText().toString();
-
         ContentValues values = new ContentValues();
+
         if (pillId.getValue() >= 0)
-            values.put( field(MedicationsTable.PILL_ID), pillId.getValue());
+            values.put( column(MedicationsTable.PILL_ID), pillId.getValue());
         else
-            values.putNull( field(MedicationsTable.PILL_ID) );
+            values.putNull( column(MedicationsTable.PILL_ID) );
 
         if (patientId.getValue() >= 0)
-            values.put( field(MedicationsTable.PATIENT_ID), patientId.getValue());
+            values.put( column(MedicationsTable.PATIENT_ID), patientId.getValue());
         else
-            values.putNull( field(MedicationsTable.PATIENT_ID) );
+            values.putNull( column(MedicationsTable.PATIENT_ID) );
 
-        values.put( field(MedicationsTable.NAME), name);
+        String name = medicationNameField.getText().toString();
+        values.put( column(MedicationsTable.NAME), name);
 
         return values;
 		}

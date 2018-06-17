@@ -21,7 +21,7 @@ import digitalgarden.mecsek.utils.Keyboard;
 // http://stackoverflow.com/a/5796606
 
 /*
- * GeneralControllActivity
+ * GenericControllActivity
  * 
  *  Minden egyes táblához tartozik egy-egy programrész:
  *  A tábla egészét a ListFragment mutatja be List formában
@@ -39,23 +39,23 @@ import digitalgarden.mecsek.utils.Keyboard;
  *  	ITEM_SELECTED - a kiválasztott elem id-je
  */
 
-public abstract class GeneralControllActivity extends AppCompatActivity
+public abstract class GenericControllActivity extends AppCompatActivity
     {
     public final static String TITLE = "title";
 
-    // Ezeket az értékeket GeneralListFragment definiálja
+    // Ezeket az értékeket GenericListFragment definiálja
     // public static final String SELECTED_ITEM = "selected item";
     // public static final long SELECTED_NONE = -2L;
     // public static final long SELECT_DISABLED = -1L;
 
-    // Ezeket az értékeket GeneralEditFragment definiálja
+    // Ezeket az értékeket GenericEditFragment definiálja
     // public final static String EDITED_ITEM = "edited item";
 
     // Edit Fragment létrehozásáért felelős rész
-    protected abstract GeneralEditFragment createEditFragment();
+    protected abstract GenericEditFragment createEditFragment();
 
     // List Fragment létrehozásáért felelős rész
-    protected abstract GeneralListFragment createListFragment();
+    protected abstract GenericListFragment createListFragment();
 
     //boolean flag to know if main FAB is in open or closed state.
     private boolean fabExpanded = false;
@@ -71,7 +71,7 @@ public abstract class GeneralControllActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
         {
-        Scribe.note("GeneralControllActivity.onCreate started");
+        Scribe.note("GenericControllActivity.onCreate started");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.general_controll_activity);
@@ -150,7 +150,7 @@ public abstract class GeneralControllActivity extends AppCompatActivity
         String title = getIntent().getStringExtra(TITLE);
         if (title != null)
             {
-            Scribe.note("GeneralControllActivity TITLE set: " + title);
+            Scribe.note("GenericControllActivity TITLE set: " + title);
             setTitle(title);
             }
         }
@@ -182,7 +182,7 @@ public abstract class GeneralControllActivity extends AppCompatActivity
     protected void onResumeFragments()
         {
         super.onResumeFragments();
-        Scribe.note("GeneralControllActivity.onResumeFragments started");
+        Scribe.note("GenericControllActivity.onResumeFragments started");
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
@@ -229,7 +229,7 @@ public abstract class GeneralControllActivity extends AppCompatActivity
 
         // Ezt lehet, h. a fragment is meg tudná tenni
         Intent i = new Intent();
-        i.putExtra(GeneralListFragment.SELECTED_ITEM, id);
+        i.putExtra(GenericListFragment.SELECTED_ITEM, id);
         setResult(RESULT_OK, i);
         finish();
         }
@@ -249,7 +249,7 @@ public abstract class GeneralControllActivity extends AppCompatActivity
 
         editFrag = createEditFragment();
         Bundle args = new Bundle();
-        args.putLong(GeneralEditFragment.EDITED_ITEM, id);
+        args.putLong(GenericEditFragment.EDITED_ITEM, id);
         editFrag.setArguments(args);
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -281,7 +281,7 @@ public abstract class GeneralControllActivity extends AppCompatActivity
         if (editFrag != null)
             {
             Scribe.note("BACK PRESS was forwarded to EDIT Fragment");
-            ((GeneralEditFragment) editFrag).cancelEdit();
+            ((GenericEditFragment) editFrag).cancelEdit();
             }
         else
             {
@@ -299,7 +299,7 @@ public abstract class GeneralControllActivity extends AppCompatActivity
         Fragment listFrag = fragmentManager.findFragmentById(R.id.list_frame);
         if (listFrag != null)
             {
-            ((GeneralListFragment) listFrag).editFinished();
+            ((GenericListFragment) listFrag).editFinished();
             }
 
         fragmentManager.popBackStack();

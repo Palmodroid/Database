@@ -1,6 +1,8 @@
 package digitalgarden.mecsek.formtypes;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.view.MotionEvent;
 import android.view.View;
@@ -9,14 +11,37 @@ import android.widget.TextView;
 import java.util.HashSet;
 import java.util.Set;
 
+import digitalgarden.mecsek.database.medications.MedicationsTable;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GeneralControllActivity;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericControllActivity;
+import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
+
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 
 
 public class ForeignKey
-	{
+    {
+    public void setKey(Cursor cursor)
+        {
+        int column = cursor.getColumnIndexOrThrow(column(foreignColumnIndex));
+        if (cursor.isNull(column))
+            setValue(-1L);
+        else
+            setValue(cursor.getLong(column));
+        }
+
+
+    public void getKey(ContentValues values)
+        {
+        if (getValue() >= 0)
+            values.put( column( foreignColumnIndex ), getValue());
+        else
+            values.putNull( column( foreignColumnIndex ) );
+        }
+
+
+    /**********************************************************************************************/
 	// A külső tábla, melyre hivatkozunk
 	private Uri foreignTable;
 	
@@ -28,7 +53,7 @@ public class ForeignKey
     private Set<ForeignField> foreignFields;
 
     // A form, amelyhez a ForeignKey (és a hozzá tartozó Field-ek) kötődnek
-	private GeneralEditFragment form;
+	private GenericEditFragment form;
 
 	// ForeignKey és kapcsolódó mezők közös selectorCode-ja, vagyis a selectorActivity requestCode-ja
 	private int selectorCode = -1;
@@ -77,7 +102,7 @@ public class ForeignKey
 
 	// Létrehozás (EditFragment-tel együtt) után
 	// először csatolni kell a form-hoz (setupFormLayout-ban)
-	public void connect(final GeneralEditFragment form) 
+	public void connect(final GenericEditFragment form)
 		{
 		this.form = form;
 		// Összekapcsoláskor nullázzuk a korábbi kapcsolatokat
@@ -89,7 +114,7 @@ public class ForeignKey
 		}
 
     // majd külön beállítjuk hozzá a selectort
-    // selectorActivity - a megfelelő táblához tartozó GeneralControllActivity
+    // selectorActivity - a megfelelő táblához tartozó GenericControllActivity
     // selectorTitle - selector címének eleje
     // selectorOwner - a jelenlegi elemet leginkább jellemző TextView
     public void setupSelector(final Class<?> selectorActivity, final String selectorTitle, final TextView selectorOwner)
@@ -99,7 +124,7 @@ public class ForeignKey
     	this.selectorOwner = selectorOwner;
     	}
 
-	public GeneralEditFragment getForm()
+	public GenericEditFragment getForm()
 		{
 		return form;
 		}
@@ -117,8 +142,8 @@ public class ForeignKey
 		// és a selector-t beállítottuk
 		if (form == null || selectorActivity == null)
 			{
-			Scribe.error("Foreign Key was not connected to GeneralEditFragment or Selector was not set!");
-			throw new IllegalArgumentException("Foreign Key was not connected to GeneralEditFragment or Selector was not set!"); 
+			Scribe.error("Foreign Key was not connected to GenericEditFragment or Selector was not set!");
+			throw new IllegalArgumentException("Foreign Key was not connected to GenericEditFragment or Selector was not set!");
 			}
 		
 		foreignFields.add(field);
@@ -134,8 +159,8 @@ public class ForeignKey
 					{
 					Scribe.note("ForeignTextField: Selector started!");
 					Intent intent = new Intent( getForm().getActivity(), selectorActivity);
-					intent.putExtra( GeneralControllActivity.TITLE, selectorTitle + selectorOwner.getText() );
-					intent.putExtra( GeneralListFragment.SELECTED_ITEM, getValue() );
+					intent.putExtra( GenericControllActivity.TITLE, selectorTitle + selectorOwner.getText() );
+					intent.putExtra( GenericListFragment.SELECTED_ITEM, getValue() );
 					getForm().startActivityForResult( intent, getSelectorCode() );
 					}
 				return true; // nem engedjük mást sem csinálni

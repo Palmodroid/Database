@@ -9,7 +9,7 @@ import digitalgarden.mecsek.database.authors.AuthorsTable;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.StringUtils;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
 
@@ -30,14 +30,14 @@ public class AuthorsTableExportImport extends GeneralTableExportImport
 	@Override
 	protected String[] getProjection()
 		{
-		return new String[] { field(AuthorsTable.NAME) };
+		return new String[] { column(AuthorsTable.NAME) };
 		}
 
 	@Override
 	protected String[] getRowData(Cursor cursor)
 		{
 		return new String[] 
-			{ cursor.getString( cursor.getColumnIndexOrThrow( field(AuthorsTable.NAME) )) };
+			{ cursor.getString( cursor.getColumnIndexOrThrow( column(AuthorsTable.NAME) )) };
 		}
 
 	@Override
@@ -55,16 +55,16 @@ public class AuthorsTableExportImport extends GeneralTableExportImport
 	
 		// Uniqe ellenőrzés kódból. Lehetne adatbázis szinten is, hiba ellenőrzésével
 		String[] projection = { 
-			field(AuthorsTable.NAME) };
+			column(AuthorsTable.NAME) };
 		Cursor cursor = getContentResolver()
 			.query( table(AUTHORS).contentUri(), projection,
-			field(AuthorsTable.NAME) + "='" + records[1] + "'", null, null);
+			column(AuthorsTable.NAME) + "='" + records[1] + "'", null, null);
 		
 		// http://stackoverflow.com/a/16108435
 		if (cursor == null || cursor.getCount() == 0)
 			{
 			ContentValues values = new ContentValues();
-			values.put( field(AuthorsTable.NAME), records[1]);
+			values.put( column(AuthorsTable.NAME), records[1]);
 			
 			getContentResolver()
 				.insert( table(AUTHORS).contentUri(), values);

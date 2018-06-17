@@ -1,57 +1,50 @@
 package digitalgarden.mecsek.database.authors;
 
 import android.content.ContentValues;
-import android.net.Uri;
 import android.os.Bundle;
 
 import digitalgarden.mecsek.R;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
-import static digitalgarden.mecsek.database.DatabaseMirror.field_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
 
 
-public class AuthorsListFragment extends GeneralListFragment
+public class AuthorsListFragment extends GenericListFragment
 	{
 	// static factory method
 	// http://www.androiddesignpatterns.com/2012/05/using-newinstance-to-instantiate.html
-	public static GeneralListFragment newInstance( long select )
+	public static GenericListFragment newInstance(long select )
 		{
-		GeneralListFragment listFragmenet = new AuthorsListFragment();
+		GenericListFragment listFragmenet = new AuthorsListFragment();
 	
 		Bundle args = new Bundle();
 
 		args.putLong( SELECTED_ITEM, select );
 		// args.putString( LIMITED_COLUMN, null); Sem ez, sem LIMITED_ITEM nem kell!
 
-		args.putStringArray( FILTERED_COLUMN, new String[] { field(AuthorsTable.SEARCH) });
-		args.putString( ORDERED_COLUMN, field(AuthorsTable.NAME) );
+		args.putStringArray( FILTERED_COLUMN, new String[] { column(AuthorsTable.SEARCH) });
+		args.putString( ORDERED_COLUMN, column(AuthorsTable.NAME) );
 
 		listFragmenet.setArguments(args);
 		
 		return listFragmenet;
 		}
 
-	
-	protected int getLoaderId()
-		{
-		return table(AUTHORS).id();
-		}
-
-	@Override
-	protected Uri getContentUri()
-		{
-		return table(AUTHORS).contentUri();
-		}
+    @Override
+    protected int defineTableIndex()
+        {
+        return AUTHORS;
+        }
 
 	@Override
 	protected String[] getProjection()
 		{
 		String[] projection = new String[] {
-				field_id(),
-				field(AuthorsTable.NAME)};
+				column_id(),
+				column(AuthorsTable.NAME)};
 
 		return projection;
 		}
@@ -68,8 +61,8 @@ public class AuthorsListFragment extends GeneralListFragment
 		// Fields from the database (projection)
 		// Must include the _id column for the adapter to work
 		String[] from = new String[] {
-				field(AuthorsTable.NAME),
-				field_id() };
+				column(AuthorsTable.NAME),
+				column_id() };
 
 		return from;
 		}
@@ -90,19 +83,19 @@ public class AuthorsListFragment extends GeneralListFragment
 		{
 		ContentValues values = new ContentValues();
 
-		values.put( field(AuthorsTable.NAME), "Láng Attila D.");
+		values.put( column(AuthorsTable.NAME), "Láng Attila D.");
 		getActivity().getContentResolver().insert( table(AUTHORS).contentUri(), values);
 
-		values.put( field(AuthorsTable.NAME), "Gárdonyi Géza");
+		values.put( column(AuthorsTable.NAME), "Gárdonyi Géza");
 		getActivity().getContentResolver().insert( table(AUTHORS).contentUri(), values);
 
-		values.put( field(AuthorsTable.NAME), "Molnár Ferenc");
+		values.put( column(AuthorsTable.NAME), "Molnár Ferenc");
 		getActivity().getContentResolver().insert( table(AUTHORS).contentUri(), values);
 
-		values.put( field(AuthorsTable.NAME), "Szabó Magda");
+		values.put( column(AuthorsTable.NAME), "Szabó Magda");
 		getActivity().getContentResolver().insert( table(AUTHORS).contentUri(), values);
 
-		values.put( field(AuthorsTable.NAME), "Fekete István");
+		values.put( column(AuthorsTable.NAME), "Fekete István");
 		getActivity().getContentResolver().insert( table(AUTHORS).contentUri(), values);
 		}
 	}

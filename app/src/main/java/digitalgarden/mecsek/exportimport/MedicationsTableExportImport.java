@@ -11,8 +11,8 @@ import digitalgarden.mecsek.database.pills.PillsTable;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.StringUtils;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
-import static digitalgarden.mecsek.database.DatabaseMirror.field_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.MEDICATIONS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
@@ -37,22 +37,22 @@ public class MedicationsTableExportImport extends GeneralTableExportImport
 	protected String[] getProjection()
 		{
 		return new String[] {
-                field(MedicationsTable.NAME),
-                field(PillsTable.NAME),
-                field(PatientsTable.NAME),
-                field(PatientsTable.DOB),
-                field(PatientsTable.TAJ) };
+                column(MedicationsTable.NAME),
+                column(PillsTable.NAME),
+                column(PatientsTable.NAME),
+                column(PatientsTable.DOB),
+                column(PatientsTable.TAJ) };
 		}
 
 	@Override
 	protected String[] getRowData(Cursor cursor)
 		{
 		return new String[] {
-                cursor.getString( cursor.getColumnIndexOrThrow( field(MedicationsTable.NAME) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( field(PillsTable.NAME) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( field(PatientsTable.NAME) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( field(PatientsTable.DOB) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( field(PatientsTable.TAJ) ))
+                cursor.getString( cursor.getColumnIndexOrThrow( column(MedicationsTable.NAME) )),
+                cursor.getString( cursor.getColumnIndexOrThrow( column(PillsTable.NAME) )),
+                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.NAME) )),
+                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.DOB) )),
+                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.TAJ) ))
         };
 		}
 
@@ -89,17 +89,17 @@ public class MedicationsTableExportImport extends GeneralTableExportImport
 		ContentValues values = new ContentValues();
 		
 		if ( pillId == ID_NULL )
-    		values.putNull( field(MedicationsTable.PILL_ID) );
+    		values.putNull( column(MedicationsTable.PILL_ID) );
 		else
-    		values.put( field(MedicationsTable.PILL_ID), pillId );
+    		values.put( column(MedicationsTable.PILL_ID), pillId );
 
         if ( patientId == ID_NULL )
-            values.putNull( field(MedicationsTable.PATIENT_ID) );
+            values.putNull( column(MedicationsTable.PATIENT_ID) );
         else
-            values.put( field(MedicationsTable.PATIENT_ID), patientId );
+            values.put( column(MedicationsTable.PATIENT_ID), patientId );
 
 		records[1] = StringUtils.revertFromEscaped( records[1] );
-		values.put( field(MedicationsTable.NAME), records[1] );
+		values.put( column(MedicationsTable.NAME), records[1] );
 				
 		getContentResolver()
 			.insert( table(MEDICATIONS).contentUri(), values);
@@ -121,17 +121,17 @@ public class MedicationsTableExportImport extends GeneralTableExportImport
 		long pillId = ID_MISSING;
 		
 		String[] projection = {
-			    field_id(),
-                field(PillsTable.NAME) };
+			    column_id(),
+                column(PillsTable.NAME) };
 		Cursor cursor = getContentResolver()
 			.query( table(PILLS).contentUri(), projection,
-                    field(PillsTable.NAME) + "=\'" + StringUtils.revertFromEscaped( pillName ) + "\'",
+                    column(PillsTable.NAME) + "=\'" + StringUtils.revertFromEscaped( pillName ) + "\'",
 				   null, null);
 
 		if ( cursor != null)
 			{
 			if (cursor.moveToFirst())
-				pillId = cursor.getLong( cursor.getColumnIndexOrThrow( field_id() ) );
+				pillId = cursor.getLong( cursor.getColumnIndexOrThrow( column_id() ) );
 			cursor.close();
 			}
 		
@@ -149,21 +149,21 @@ public class MedicationsTableExportImport extends GeneralTableExportImport
         long patientId = ID_MISSING;
 
         String[] projection = {
-                field_id(),
-                field(PatientsTable.NAME),
-                field(PatientsTable.DOB),
-                field(PatientsTable.TAJ) };
+                column_id(),
+                column(PatientsTable.NAME),
+                column(PatientsTable.DOB),
+                column(PatientsTable.TAJ) };
         Cursor cursor = getContentResolver()
                 .query( table(PATIENTS).contentUri(), projection,
-                        field(PatientsTable.NAME) + "=\'" + StringUtils.revertFromEscaped( patientName ) + "\' AND " +
-                                field(PatientsTable.DOB) + "=\'" + StringUtils.revertFromEscaped( patientDob ) + "\' AND " +
-                                field(PatientsTable.TAJ) + "=\'" + StringUtils.revertFromEscaped( patientTaj ) + "\'",
+                        column(PatientsTable.NAME) + "=\'" + StringUtils.revertFromEscaped( patientName ) + "\' AND " +
+                                column(PatientsTable.DOB) + "=\'" + StringUtils.revertFromEscaped( patientDob ) + "\' AND " +
+                                column(PatientsTable.TAJ) + "=\'" + StringUtils.revertFromEscaped( patientTaj ) + "\'",
                         null, null);
 
         if ( cursor != null)
             {
             if (cursor.moveToFirst())
-                patientId = cursor.getLong( cursor.getColumnIndexOrThrow( field_id() ) );
+                patientId = cursor.getLong( cursor.getColumnIndexOrThrow( column_id() ) );
             cursor.close();
             }
 

@@ -13,15 +13,15 @@ import digitalgarden.mecsek.formtypes.EditTextField;
 import digitalgarden.mecsek.formtypes.ForeignKey;
 import digitalgarden.mecsek.formtypes.ForeignTextField;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
+import digitalgarden.mecsek.templates.GenericEditFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.BOOKS;
 
 
-public class BooksEditFragment extends GeneralEditFragment
+public class BooksEditFragment extends GenericEditFragment
 	{
 	private EditTextField editTextTitle;
 	private ForeignKey authorId = new ForeignKey( table(AUTHORS).contentUri() );
@@ -59,7 +59,7 @@ public class BooksEditFragment extends GeneralEditFragment
         
         // ForeignTextField
        	foreignTextAuthor = (ForeignTextField) view.findViewById(R.id.edittext_author);
-        foreignTextAuthor.link( authorId, field(AuthorsTable.NAME) );
+        foreignTextAuthor.link( authorId, column(AuthorsTable.NAME) );
 		}
 
 	@Override
@@ -68,20 +68,20 @@ public class BooksEditFragment extends GeneralEditFragment
 		Scribe.note("BooksEditFragment setupFieldsData");
 
 		String[] projection = {
-				field(BooksTable.AUTHOR_ID),
-				field(BooksTable.TITLE) };
+				column(BooksTable.AUTHOR_ID),
+				column(BooksTable.TITLE) };
 		Cursor cursor = getActivity().getContentResolver().query(getItemContentUri(), projection, null, null, null);
 
 		if (cursor != null) // Ez vajon kell? 
 			{
 			cursor.moveToFirst();
 
-			int column = cursor.getColumnIndexOrThrow( field(BooksTable.AUTHOR_ID) );
+			int column = cursor.getColumnIndexOrThrow( column(BooksTable.AUTHOR_ID) );
 			if ( cursor.isNull( column ) )
 				authorId.setValue( -1L );
 			else
 				authorId.setValue( cursor.getLong( column ) );
-			editTextTitle.setText(cursor.getString(cursor.getColumnIndexOrThrow(  field(BooksTable.TITLE) )));
+			editTextTitle.setText(cursor.getString(cursor.getColumnIndexOrThrow(  column(BooksTable.TITLE) )));
 
 			// Always close the cursor
 			cursor.close();
@@ -97,10 +97,10 @@ public class BooksEditFragment extends GeneralEditFragment
 
 	    ContentValues values = new ContentValues();
 	    if (authorId.getValue() >= 0)
-	    	values.put( field(BooksTable.AUTHOR_ID), authorId.getValue());
+	    	values.put( column(BooksTable.AUTHOR_ID), authorId.getValue());
 	    else
-	    	values.putNull( field(BooksTable.AUTHOR_ID) );
-	    values.put( field(BooksTable.TITLE), title);
+	    	values.putNull( column(BooksTable.AUTHOR_ID) );
+	    values.put( column(BooksTable.TITLE), title);
 
 	    return values;
 		}

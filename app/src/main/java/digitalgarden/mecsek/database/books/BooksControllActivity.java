@@ -2,30 +2,30 @@ package digitalgarden.mecsek.database.books;
 
 import android.content.Intent;
 
-import digitalgarden.mecsek.templates.GeneralControllActivity;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericControllActivity;
+import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
 
 
 // res:
 // http://stackoverflow.com/a/5796606
 
 
-public class BooksControllActivity extends GeneralControllActivity
+public class BooksControllActivity extends GenericControllActivity
 	implements BooksListFragment.OnListReturnedListener, BooksEditFragment.OnFinishedListener
 	{
 
 	@Override
-	protected GeneralEditFragment createEditFragment()
+	protected GenericEditFragment createEditFragment()
 		{
 		return new BooksEditFragment();
 		}
 
 
 	@Override
-	protected GeneralListFragment createListFragment()
+	protected GenericListFragment createListFragment()
 		{
-		long authorIdLimit = getIntent().getLongExtra(GeneralListFragment.LIMITED_ITEM, -1L);
+		long authorIdLimit = getIntent().getLongExtra(GenericListFragment.LIMITED_ITEM, -1L);
 		return BooksListFragment.newInstance( authorIdLimit );
 		}
 	

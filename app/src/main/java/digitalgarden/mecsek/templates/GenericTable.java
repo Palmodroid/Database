@@ -13,12 +13,12 @@ import java.util.ArrayList;
 
 import digitalgarden.mecsek.utils.StringUtils;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.addFieldToDatabase;
+import static digitalgarden.mecsek.database.DatabaseMirror.addColumnToDatabase;
 import static digitalgarden.mecsek.database.DatabaseMirror.database;
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
-import static digitalgarden.mecsek.database.DatabaseMirror.fieldFull;
-import static digitalgarden.mecsek.database.DatabaseMirror.fieldFull_id;
-import static digitalgarden.mecsek.database.DatabaseMirror.field_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;
+import static digitalgarden.mecsek.database.DatabaseMirror.columnFull_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
 public abstract class GenericTable
@@ -46,55 +46,55 @@ public abstract class GenericTable
 
     public abstract String name();
 
-    public abstract void defineFields();
+    public abstract void defineColumns();
 
-    private ArrayList<String> createFields = new ArrayList<>();
+    private ArrayList<String> createColumns = new ArrayList<>();
 
     private ArrayList<String> createForeignKeys = new ArrayList<>();
 
     private ArrayList<String> createLeftOuterJoin = new ArrayList<>();
 
-    private int searchFieldIndex = -1;
-    private int searchFieldIndexFor = -1;
+    private int searchColumnIndex = -1;
+    private int searchColumnIndexFor = -1;
 
-    protected int addField(String fieldName, String type)
+    protected int addColumn(String columnName, String columnType)
         {
-        fieldName = fieldName + "_" + Integer.toString(tableId);
+        columnName = columnName + "_" + Integer.toString(tableId);
 
-        createFields.add(fieldName + " " + type);
-        return addFieldToDatabase( fieldName, name() );
+        createColumns.add(columnName + " " + columnType);
+        return addColumnToDatabase( columnName, name() );
         }
 
     // Foreign key rész
-    protected int addForeignKey(String fieldName, int referenceTableIndex)
+    protected int addForeignKey(String columnName, int referenceTableIndex)
         {
-        int index = addField(fieldName, "INTEGER");
-        createForeignKeys.add(" FOREIGN KEY (" + field(index) +
-                ") REFERENCES " + table(referenceTableIndex).name() + " (" + field_id() + ") ");
+        int index = addColumn(columnName, "INTEGER");
+        createForeignKeys.add(" FOREIGN KEY (" + column(index) +
+                ") REFERENCES " + table(referenceTableIndex).name() + " (" + column_id() + ") ");
 
         createLeftOuterJoin.add(" LEFT OUTER JOIN " + table(referenceTableIndex).name() +
-                " ON " + fieldFull( index ) + "=" + fieldFull_id(referenceTableIndex) );
+                " ON " + columnFull( index ) + "=" + columnFull_id(referenceTableIndex) );
 
         return index;
         }
 
-    protected int addSearchFieldFor( int fieldIndex )
+    protected int addSearchColumnFor(int columnIndex )
         {
-        if ( searchFieldIndex != -1 )
-            throw new IllegalArgumentException("Search field already defined in table " + name());
-        searchFieldIndex = addField("search", "TEXT");
-        searchFieldIndexFor = fieldIndex;
-        return searchFieldIndex;
+        if ( searchColumnIndex != -1 )
+            throw new IllegalArgumentException("Search column already defined in table " + name());
+        searchColumnIndex = addColumn("search", "TEXT");
+        searchColumnIndexFor = columnIndex;
+        return searchColumnIndex;
         }
 
     public void create(SQLiteDatabase db)
         {
         StringBuilder sb = new StringBuilder("CREATE TABLE ");
 
-        sb.append(name()).append(" (").append( field_id() ).append(" INTEGER PRIMARY KEY");
+        sb.append(name()).append(" (").append( column_id() ).append(" INTEGER PRIMARY KEY");
 
-        for (String createField : createFields)
-            sb.append(", ").append(createField);
+        for (String createColumn : createColumns)
+            sb.append(", ").append(createColumn);
 
         for (String createForeignKey : createForeignKeys)
             sb.append(", ").append(createForeignKey);
@@ -163,10 +163,10 @@ public abstract class GenericTable
         if ( uriType == id(DIRID) )
             {
             // Az ekezet nelkuli kereseshez meg egy oszlop hozzakerul
-            if (searchFieldIndex != -1)
+            if (searchColumnIndex != -1)
                 {
-                values.put(field(searchFieldIndex), StringUtils.normalize(
-                        values.getAsString(field(searchFieldIndexFor))));
+                values.put(column(searchColumnIndex), StringUtils.normalize(
+                        values.getAsString(column(searchColumnIndexFor))));
                 }
 
             long id = db.insert( name(), null, values );
@@ -190,11 +190,11 @@ public abstract class GenericTable
             String id = uri.getLastPathSegment();
             if (TextUtils.isEmpty(whereClause))
                 {
-                rowsDeleted = db.delete( name(), field_id() + "=" + id, null);
+                rowsDeleted = db.delete( name(), column_id() + "=" + id, null);
                 }
             else
                 {
-                rowsDeleted = db.delete( name(), field_id() + "=" + id + " and " + whereClause, whereArgs);
+                rowsDeleted = db.delete( name(), column_id() + "=" + id + " and " + whereClause, whereArgs);
                 }
             }
         return rowsDeleted;
@@ -211,10 +211,10 @@ public abstract class GenericTable
             }
         else if ( uriType == id(ITEMID))
             {
-            if (searchFieldIndex != -1)
+            if (searchColumnIndex != -1)
                 {
-                values.put(field(searchFieldIndex), StringUtils.normalize(
-                        values.getAsString(field(searchFieldIndexFor))));
+                values.put(column(searchColumnIndex), StringUtils.normalize(
+                        values.getAsString(column(searchColumnIndexFor))));
                 }
 
             String id = uri.getLastPathSegment();
@@ -222,14 +222,14 @@ public abstract class GenericTable
                 {
                 rowsUpdated = db.update( name(),
                         values,
-                        field_id()  + "=" + id,
+                        column_id()  + "=" + id,
                         null);
                 }
             else
                 {
                 rowsUpdated = db.update( name(),
                         values,
-                        field_id()  + "=" + id
+                        column_id()  + "=" + id
                                 + " and "
                                 + whereClause,
                         whereArgs);
@@ -254,7 +254,7 @@ public abstract class GenericTable
                 sb.append(createLeftOuterJoin);
             queryBuilder.setTables( sb.toString() );
             // Adding the ID to the original query
-            queryBuilder.appendWhere( name() + "." + field_id() + "=" + uri.getLastPathSegment());
+            queryBuilder.appendWhere( name() + "." + column_id() + "=" + uri.getLastPathSegment());
             }
         else
             return false;

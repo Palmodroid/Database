@@ -20,10 +20,10 @@ public final class AuthorsTable extends GenericTable
     public static int SEARCH;
 
     @Override
-    public void defineFields()
+    public void defineColumns()
         {
-        NAME = addField("name", "TEXT");
-        SEARCH = addSearchFieldFor(NAME);
+        NAME = addColumn("name", "TEXT");
+        SEARCH = addSearchColumnFor(NAME);
         }
 
     }

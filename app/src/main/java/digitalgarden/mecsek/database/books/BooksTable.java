@@ -25,11 +25,11 @@ public final class BooksTable extends GenericTable
     public static int SEARCH;
 
     @Override
-    public void defineFields()
+    public void defineColumns()
         {
-        TITLE = addField("title", "TEXT");
-        NOTE = addField("note", "TEXT");
-        SEARCH = addSearchFieldFor(TITLE);
+        TITLE = addColumn("title", "TEXT");
+        NOTE = addColumn("note", "TEXT");
+        SEARCH = addSearchColumnFor(TITLE);
         AUTHOR_ID = addForeignKey("author_id", AUTHORS);
         }
 

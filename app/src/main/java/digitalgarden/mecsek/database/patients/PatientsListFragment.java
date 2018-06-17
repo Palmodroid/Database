@@ -1,60 +1,52 @@
 package digitalgarden.mecsek.database.patients;
 
-import android.net.Uri;
 import android.os.Bundle;
 
 import digitalgarden.mecsek.R;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
-import static digitalgarden.mecsek.database.DatabaseMirror.field_id;
-import static digitalgarden.mecsek.database.DatabaseMirror.table;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
 
 
-public class PatientsListFragment extends GeneralListFragment
+public class PatientsListFragment extends GenericListFragment
 	{
 	// static factory method
 	// http://www.androiddesignpatterns.com/2012/05/using-newinstance-to-instantiate.html
-	public static GeneralListFragment newInstance( long select )
+	public static GenericListFragment newInstance(long select )
 		{
-		GeneralListFragment listFragmenet = new PatientsListFragment();
+		GenericListFragment listFragmenet = new PatientsListFragment();
 	
 		Bundle args = new Bundle();
 
 		args.putLong( SELECTED_ITEM, select );
 		// args.putString( LIMITED_COLUMN, null); Sem ez, sem LIMITED_ITEM nem kell!
 
-		args.putStringArray( FILTERED_COLUMN, new String[] { field(PatientsTable.SEARCH) });
-		args.putString( ORDERED_COLUMN, field(PatientsTable.NAME) );
+		args.putStringArray( FILTERED_COLUMN, new String[] { column(PatientsTable.SEARCH) });
+		args.putString( ORDERED_COLUMN, column(PatientsTable.NAME) );
 
 		listFragmenet.setArguments(args);
 		
 		return listFragmenet;
 		}
 
-	
-	protected int getLoaderId()
-		{
-		return table(PATIENTS).id();
-		}
+    @Override
+    protected int defineTableIndex()
+        {
+        return PATIENTS;
+        }
 
-	@Override
-	protected Uri getContentUri()
-		{
-		return table(PATIENTS).contentUri();
-		}
-
-	@Override
+    @Override
 	protected String[] getProjection()
 		{
 		String[] projection = new String[] {
-				field_id(),
-				field(PatientsTable.NAME),
-				field(PatientsTable.DOB),
-				field(PatientsTable.TAJ),
-				field(PatientsTable.PHONE),
-				field(PatientsTable.NOTE) };
+				column_id(),
+				column(PatientsTable.NAME),
+				column(PatientsTable.DOB),
+				column(PatientsTable.TAJ),
+				column(PatientsTable.PHONE),
+				column(PatientsTable.NOTE) };
 
 		return projection;
 		}
@@ -71,12 +63,12 @@ public class PatientsListFragment extends GeneralListFragment
 		// Fields from the database (projection)
 		// Must include the _id column for the adapter to work
 		String[] from = new String[] {
-				field(PatientsTable.NAME),
-				field(PatientsTable.DOB),
-				field(PatientsTable.TAJ),
-				field(PatientsTable.PHONE),
-				field(PatientsTable.NOTE),
-				field_id() };
+				column(PatientsTable.NAME),
+				column(PatientsTable.DOB),
+				column(PatientsTable.TAJ),
+				column(PatientsTable.PHONE),
+				column(PatientsTable.NOTE),
+				column_id() };
 
 		return from;
 		}

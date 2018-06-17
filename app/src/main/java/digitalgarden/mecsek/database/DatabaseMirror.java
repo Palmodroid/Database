@@ -36,7 +36,7 @@ public class DatabaseMirror
 
         for (GenericTable table : allTables())
             {
-            table.defineFields();
+            table.defineColumns();
             }
 
         for (GenericTable table : allTables() )
@@ -86,44 +86,44 @@ public class DatabaseMirror
         }
 
 
-    /*** FIELDS ***/
+    /*** COLUMNS ***/
 
-    private static class Field
+    private static class Column
         {
-        private String fieldName;
         private String tableName;
+        private String columnName;
 
-        Field(String fieldName, String tableName)
+        Column(String columnName, String tableName)
             {
-            this.fieldName = fieldName;
+            this.columnName = columnName;
             this.tableName = tableName;
             }
         }
 
-    private static ArrayList<Field> fields = new ArrayList<>();
+    private static ArrayList<Column> columns = new ArrayList<>();
 
-    public static int addFieldToDatabase(String fieldName, String tableName )
+    public static int addColumnToDatabase(String ColumnName, String tableName )
         {
-        fields.add( new Field ( fieldName, tableName ));
-        return fields.size() - 1;
+        columns.add( new Column( ColumnName, tableName ));
+        return columns.size() - 1;
         }
 
-    public static String field( int fieldIndex )
+    public static String column(int columnIndex )
         {
-        return fields.get(fieldIndex).fieldName;
+        return columns.get(columnIndex).columnName;
         }
 
-    public static String fieldFull( int fieldIndex )
+    public static String columnFull(int columnIndex )
         {
-        return fields.get( fieldIndex ).tableName + "." + field(fieldIndex);
+        return columns.get( columnIndex ).tableName + "." + column(columnIndex);
         }
 
-    public static String field_id()
+    public static String column_id()
         {
         return _ID;
         }
 
-    public static String fieldFull_id( int tableIndex )
+    public static String columnFull_id(int tableIndex )
         {
         return table( tableIndex ).name() + "." + _ID;
         }

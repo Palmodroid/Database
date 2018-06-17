@@ -9,14 +9,14 @@ import android.view.View;
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.formtypes.EditTextField;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
+import digitalgarden.mecsek.templates.GenericEditFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
 
 
-public class PatientsEditFragment extends GeneralEditFragment
+public class PatientsEditFragment extends GenericEditFragment
 	{
 	private EditTextField nameField;
 	private EditTextField dobField;
@@ -63,22 +63,22 @@ public class PatientsEditFragment extends GeneralEditFragment
 		Scribe.note("PatientsEditFragment setupFieldsData");
 
 		String[] projection = {
-				field(PatientsTable.NAME),
-				field(PatientsTable.DOB),
-				field(PatientsTable.TAJ),
-				field(PatientsTable.PHONE),
-				field(PatientsTable.NOTE) };
+				column(PatientsTable.NAME),
+				column(PatientsTable.DOB),
+				column(PatientsTable.TAJ),
+				column(PatientsTable.PHONE),
+				column(PatientsTable.NOTE) };
 		Cursor cursor = getActivity().getContentResolver().query(getItemContentUri(), projection, null, null, null);
 
 		if (cursor != null) // Ez vajon kell? 
 			{
 			cursor.moveToFirst();
 
-			nameField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  field(PatientsTable.NAME ))));
-			dobField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  field(PatientsTable.DOB ))));
-			tajField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  field(PatientsTable.TAJ ))));
-			phoneField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  field(PatientsTable.PHONE ))));
-			noteField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  field(PatientsTable.NOTE ))));
+			nameField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  column(PatientsTable.NAME ))));
+			dobField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  column(PatientsTable.DOB ))));
+			tajField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  column(PatientsTable.TAJ ))));
+			phoneField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  column(PatientsTable.PHONE ))));
+			noteField.setText(cursor.getString(cursor.getColumnIndexOrThrow(  column(PatientsTable.NOTE ))));
 
 			// Always close the cursor
 			cursor.close();
@@ -97,11 +97,11 @@ public class PatientsEditFragment extends GeneralEditFragment
 		String note = noteField.getText().toString();
 
 	    ContentValues values = new ContentValues();
-		values.put( field(PatientsTable.NAME), name);
-		values.put( field(PatientsTable.DOB), dob);
-		values.put( field(PatientsTable.TAJ), taj);
-		values.put( field(PatientsTable.PHONE), phone);
-		values.put( field(PatientsTable.NOTE), note);
+		values.put( column(PatientsTable.NAME), name);
+		values.put( column(PatientsTable.DOB), dob);
+		values.put( column(PatientsTable.TAJ), taj);
+		values.put( column(PatientsTable.PHONE), phone);
+		values.put( column(PatientsTable.NOTE), note);
 
 	    return values;
 		}

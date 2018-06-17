@@ -24,12 +24,12 @@ public final class MedicationsTable extends GenericTable
     public static int SEARCH;
 
     @Override
-    public void defineFields()
+    public void defineColumns()
         {
-        NAME = addField( "name", "TEXT" );
+        NAME = addColumn( "name", "TEXT" );
         PILL_ID = addForeignKey( "pill_id", PILLS );
         PATIENT_ID = addForeignKey( "patient_id", PATIENTS );
-        SEARCH = addSearchFieldFor( NAME );
+        SEARCH = addSearchColumnFor( NAME );
         }
 
     }

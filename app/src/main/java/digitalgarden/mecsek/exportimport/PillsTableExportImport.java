@@ -9,7 +9,7 @@ import digitalgarden.mecsek.database.pills.PillsTable;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.StringUtils;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
 
@@ -31,14 +31,14 @@ public class PillsTableExportImport extends GeneralTableExportImport
 	@Override
 	protected String[] getProjection()
 		{
-		return new String[] { field(PillsTable.NAME) };
+		return new String[] { column(PillsTable.NAME) };
 		}
 
 	@Override
 	protected String[] getRowData(Cursor cursor)
 		{
 		return new String[] 
-			{ cursor.getString( cursor.getColumnIndexOrThrow( field(PillsTable.NAME) )) };
+			{ cursor.getString( cursor.getColumnIndexOrThrow( column(PillsTable.NAME) )) };
 		}
 
 	@Override
@@ -56,16 +56,16 @@ public class PillsTableExportImport extends GeneralTableExportImport
 	
 		// Uniqe ellenőrzés kódból. Lehetne adatbázis szinten is, hiba ellenőrzésével
 		String[] projection = {
-                field(PillsTable.NAME) };
+                column(PillsTable.NAME) };
 		Cursor cursor = getContentResolver()
 			.query( table(PILLS).contentUri(), projection,
-                    field(PillsTable.NAME) + "='" + records[1] + "'", null, null);
+                    column(PillsTable.NAME) + "='" + records[1] + "'", null, null);
 		
 		// http://stackoverflow.com/a/16108435
 		if (cursor == null || cursor.getCount() == 0)
 			{
 			ContentValues values = new ContentValues();
-			values.put( field(PillsTable.NAME), records[1]);
+			values.put( column(PillsTable.NAME), records[1]);
 			
 			getContentResolver()
 				.insert( table(PILLS).contentUri(), values);

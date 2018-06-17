@@ -10,14 +10,14 @@ import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.database.books.BooksControllActivity;
 import digitalgarden.mecsek.formtypes.EditTextField;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
+import digitalgarden.mecsek.templates.GenericEditFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
 
 
-public class AuthorsEditFragment extends GeneralEditFragment
+public class AuthorsEditFragment extends GenericEditFragment
 	{
 	private EditTextField nameField;
 
@@ -37,7 +37,8 @@ public class AuthorsEditFragment extends GeneralEditFragment
 	protected void setupFormLayout( View view )
 		{
 		Scribe.note("AuthorsEditFragment setupFormLayout");
-		
+
+
         nameField = (EditTextField) view.findViewById( R.id.edittext_name );
         nameField.connect( this );
 
@@ -53,14 +54,14 @@ public class AuthorsEditFragment extends GeneralEditFragment
 		Scribe.note("AuthorsEditFragment setupFieldsData");
 
 		String[] projection = {
-				field(AuthorsTable.NAME) };
+				column(AuthorsTable.NAME) };
 		Cursor cursor = getActivity().getContentResolver().query(getItemContentUri(), projection, null, null, null);
 
 		if (cursor != null) // Ez vajon kell? 
 			{
 			cursor.moveToFirst();
 
-			nameField.setText(cursor.getString(cursor.getColumnIndexOrThrow( field(AuthorsTable.NAME) )));
+			nameField.setText(cursor.getString(cursor.getColumnIndexOrThrow( column(AuthorsTable.NAME) )));
 
 			// Always close the cursor
 			cursor.close();
@@ -75,7 +76,7 @@ public class AuthorsEditFragment extends GeneralEditFragment
 		String name = nameField.getText().toString();
 
 	    ContentValues values = new ContentValues();
-	    values.put( field(AuthorsTable.NAME), name);
+	    values.put( column(AuthorsTable.NAME), name);
 	    
 	    return values;
 		}

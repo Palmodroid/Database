@@ -4,25 +4,25 @@ package digitalgarden.mecsek.database.patients;
 // res:
 // http://stackoverflow.com/a/5796606
 
-import digitalgarden.mecsek.templates.GeneralControllActivity;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericControllActivity;
+import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
 
-public class PatientsControllActivity extends GeneralControllActivity
+public class PatientsControllActivity extends GenericControllActivity
 	implements PatientsListFragment.OnListReturnedListener, PatientsEditFragment.OnFinishedListener
 	{
 
 	@Override
-	protected GeneralEditFragment createEditFragment()
+	protected GenericEditFragment createEditFragment()
 		{
 		return new PatientsEditFragment();
 		}
 
 
 	@Override
-	protected GeneralListFragment createListFragment()
+	protected GenericListFragment createListFragment()
 		{
-		long initiallySelectedItem = getIntent().getLongExtra(GeneralListFragment.SELECTED_ITEM, PatientsListFragment.SELECT_DISABLED);
+		long initiallySelectedItem = getIntent().getLongExtra(GenericListFragment.SELECTED_ITEM, PatientsListFragment.SELECT_DISABLED);
 		return PatientsListFragment.newInstance( initiallySelectedItem );
 		}
 

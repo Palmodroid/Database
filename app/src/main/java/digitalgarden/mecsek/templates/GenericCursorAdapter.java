@@ -9,7 +9,7 @@ import android.view.View;
 import digitalgarden.mecsek.R;
 
 
-public class GeneralCursorAdapter extends SimpleCursorAdapter
+public class GenericCursorAdapter extends SimpleCursorAdapter
 	{
 	// Az eddig kiválasztott elemet mutatja, vagy semmit, ha Selected_none v. Select_disbaled
 	// (Konstruktorban mindenképp normálértéket kap)
@@ -37,8 +37,8 @@ public class GeneralCursorAdapter extends SimpleCursorAdapter
 		this.editedItem = -1L;
 		}
 	
-	public GeneralCursorAdapter(Context context, int layout, Cursor c,
-			String[] from, int[] to, int flags, long selectedItem)
+	public GenericCursorAdapter(Context context, int layout, Cursor c,
+                                String[] from, int[] to, int flags, long selectedItem)
 		{
 		super(context, layout, c, from, to, flags);
 

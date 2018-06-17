@@ -28,6 +28,8 @@ import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.Keyboard;
 import digitalgarden.mecsek.utils.StringUtils;
 
+import static digitalgarden.mecsek.database.DatabaseMirror.table;
+
 
 /*
  * A ListFragment-ek egy-egy teljes táblát mutatnak be. Működésük nagyrészt azonos, 
@@ -44,11 +46,11 @@ import digitalgarden.mecsek.utils.StringUtils;
  * delete
  * 
  * A Fragment-ek miatt ezeket CSAK üres konstruktorral lehet létrehozni. A működést
- * a GeneralListFragment végzi, ebből származtatjuk az egyes tényleges ListFragment-eket.
+ * a GenericListFragment végzi, ebből származtatjuk az egyes tényleges ListFragment-eket.
  * Minden ListFragment tartalmaz egy newInstance() metódust.
- * Maga a GeneralListFragment egy üres konstruktorral kerül létrehozásra. A szükséges részeket
+ * Maga a GenericListFragment egy üres konstruktorral kerül létrehozásra. A szükséges részeket
  * abstract függvények és argumentum-ként átadott értékek adják meg.
- * 
+ ??? http://www.heimetli.ch/java/create-new-instance.html *
  * Korábbi bejegyzés:
  * Template_ListFragment
  * 
@@ -64,7 +66,7 @@ import digitalgarden.mecsek.utils.StringUtils;
  */
 
 
-public abstract class GeneralListFragment extends ListFragment
+public abstract class GenericListFragment extends ListFragment
 	implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemLongClickListener
 	{
 	/* 
@@ -94,11 +96,20 @@ public abstract class GeneralListFragment extends ListFragment
 	// A rendezést ezen oszlop alapján végzi el
 	public static final String ORDERED_COLUMN = "ordered col";
 
+    // A tábla index, a következő két adathoz.
+    protected abstract int defineTableIndex();
+
 	// LoaderId - egyedi érték, a tábla azonosítója is megfelel. (tabla.TABLEID)
-	protected abstract int getLoaderId();
+	protected int getLoaderId()
+        {
+        return table( defineTableIndex() ).id();
+        }
 	
 	// A megjelenítendő tábla URI-ja. (tabla.CONTENT_URI)
-	protected abstract Uri getContentUri();
+	protected Uri getContentUri()
+        {
+        return table( defineTableIndex() ).contentUri();
+        }
 
 	// Az elkérendő oszlopok. (Itt FULL neveket kell megadni)
 	protected abstract String[] getProjection();
@@ -149,7 +160,7 @@ public abstract class GeneralListFragment extends ListFragment
     	}
 	
 	
-	private GeneralCursorAdapter globalAdapter;
+	private GenericCursorAdapter globalAdapter;
 	
 	// Ez a teljes rész a filter miatt kell, egyébként a ListFragment is tartalmaz egy gyári ListView-t
 	private EditText filter;
@@ -170,7 +181,7 @@ public abstract class GeneralListFragment extends ListFragment
 	        	{
 	        	if (getActivity() != null)
 	        		{
-	        		getActivity().getSupportLoaderManager().restartLoader(getLoaderId(), null, GeneralListFragment.this);
+	        		getActivity().getSupportLoaderManager().restartLoader(getLoaderId(), null, GenericListFragment.this);
 	        		Scribe.note("Filter text was changed!");
 	        		}
 	        	else
@@ -205,7 +216,7 @@ public abstract class GeneralListFragment extends ListFragment
     	setHasOptionsMenu(true);
     	// setEmptyText("Database empty"); // Custom View esetén nem használható !!
     	
-		globalAdapter = new GeneralCursorAdapter(				
+		globalAdapter = new GenericCursorAdapter(
 				getActivity(), 
 				getRowView(),
 				null,

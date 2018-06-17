@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,12 +21,143 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import digitalgarden.mecsek.R;
+import digitalgarden.mecsek.formtypes.EditTextField;
+import digitalgarden.mecsek.formtypes.ForeignKey;
+import digitalgarden.mecsek.formtypes.ForeignTextField;
 import digitalgarden.mecsek.scribe.Scribe;
 
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
-public abstract class GeneralEditFragment extends Fragment
+
+/**
+ * [Main] Table -  a "fő" tábla, mely idegen (Foreign) táblákra hivatkozhat
+ * Foreign Key -   a "fő" táblában lévő column, mely az idegen tábla egy adatsorára mutat.
+ * Foreign Table - az idegen tábla. Ennek egy sorát jelöli ki a Key.
+ * FONTOS!! A ForeignKey egy adatsort mutat meg, de nem tartalmazza a ForeignTable-t!
+ * (Ezt csak az adatbázis struktúrájából ismerjük.)
+ *
+ * Az EDIT Fragment egy konkrét adatsor szerkesztését végzi. A View mezőit feltölti a kiválasztott
+ * adatsor adataival, ill. a szerkesztés befejezésekor (UPDATE, ADD) a megváltozott mezőket vissza-
+ * tölti az adatsorba.
+ * Adatok előemelése és a mezők kitöltése: PULL DATA
+ * Adatok visszahelyezése a mezők alapján: PUSH DATA
+ *
+ * EdiTextField -
+ *      összeköt egy EditText mezőt egy Text típusú oszloppal
+ * ForeignTextField -
+ *      összeköt egy TextView mezőt egy Text típusú oszloppal, ForeignKey alapján
+ *      A mező értéke a ForeignKey által kiválasztott adatsorból származik; közvetlenül nem
+ *      változtatható meg. Érintésre a ForeignKey Selector-a indul el.
+ * ForeignKey -
+ *      Ténylegesen nem jelenik meg a mezőkben. A ForeignKey oszlop adatsorának megfelelő érték.
+ *      Ennek alapján kerülnek kiválasztásra a ForeignTextField-ek
+ *      Beállít egy Selector-t (LIST), ami segít kiválasztani a megfelelő sort.
+ *
+ * ??? Hol definiáljuk a Foreign Table-t, ill. egyáltalán van-e rá szükség ???
+ * Igen, kell; mert nem a kapcsolt, hanem csak az idegen táblából keresi ki a megfelelő értéket.
+ * Talán logikusabb a ForeignTextField-ben megadni, mint tábla-oszlop párt.
+ *
+ * A Selector is ismeri a Foreign Table-t. (Mivel több selector is lehet, ezért a Table nem ismeri
+ * a selectort) Ennek alapján viszont felesleges a ForeignTable definiálása, mert a Selector tartalmazza.
+ * ??? Vajon lehet olyan helyzet, hogy nem kell Selector ???
+ *
+ */
+public abstract class GenericEditFragment extends Fragment
 	{
+
+    private ArrayList<EditTextField> editTextFields = new ArrayList<>();
+
+
+    public EditTextField addEditTextField( int editTextFieldId, int columnIndex )
+        {
+        EditTextField editTextField = (EditTextField) getView().findViewById( editTextFieldId );
+        editTextField.connect( this, columnIndex );
+        editTextFields.add( editTextField );
+
+        return editTextField;
+        }
+
+    public void setFields(Cursor cursor )
+        {
+        for (EditTextField field : editTextFields)
+            {
+            field.setField(cursor);
+            }
+        for (ForeignKey key : foreignKeys)
+            {
+            key.setKey(cursor);
+            }
+        }
+
+    public void getFields( ContentValues values )
+        {
+        for (EditTextField field : editTextFields)
+            {
+            field.getField( values );
+            }
+        for (ForeignKey key : foreignKeys)
+            {
+            key.getKey( values );
+            }
+        }
+
+
+    public ForeignTextField addForeignTextField(ForeignKey foreignKey, int foreignTextFieldId, int columnIndex )
+        {
+        ForeignTextField foreignTextField = (ForeignTextField) getView().findViewById( foreignTextFieldId );
+        foreignTextField.link( foreignKey, column( columnIndex ));
+        // Ezt teljes egészében a foreignKey kezeli
+        return foreignTextField;
+        }
+
+
+    private ArrayList<ForeignKey> foreignKeys = new ArrayList<>();
+
+
+    public ForeignKey addForeignKey( int foreignKeyIndex, int foreignTableIndex,
+                                     String selectorTitle, TextView selectorTitleOwner )
+        {
+        ForeignKey foreignKey = new ForeignKey( table( foreignTableIndex ).contentUri() );
+        foreignKey.connect( this );
+        foreignKey.setupSelector( table(foreignTableIndex).selectorActivity(), selectorTitle, selectorTitleOwner );
+        foreignKeys.add( foreignKey );
+        return foreignKey;
+        }
+
+    protected void checkReturningSelector(int requestCode, long selectedId)
+        {
+        for (ForeignKey key : foreignKeys)
+            {
+            key.checkReturningSelector( requestCode, selectedId );
+            }
+        }
+
+
+    @Override
+    protected void saveFieldData(Bundle data)
+        {
+        for (ForeignKey key : foreignKeys)
+            {
+            data.putLong( column(foreignKeyIndex), key.getValue() );
+            }
+        }
+
+    @Override
+    protected void retrieveFieldData(Bundle data)
+        {
+        for (ForeignKey key : foreignKeys)
+            {
+            key.setValue( data.getLong( column(key.foreignKeyIndex) ) );
+            }
+        }
+
+
+
+    /**********************************************************************************************/
 	public final static String EDITED_ITEM = "edited item";
 	public final static long NEW_ITEM = -1L;
 	
@@ -65,14 +197,14 @@ public abstract class GeneralEditFragment extends Fragment
 	// http://stackoverflow.com/questions/3542333/how-to-prevent-custom-views-from-losing-state-across-screen-orientation-changes
 	// alapján egy custom view is elmentheti az állapotát. (Még nem dolgoztam ki)
 	// DE! Itt nem a customView-t, hanem a ForeignKey-t kell elmenteni, erre szolgál ez a két metódus 
-	protected abstract void saveFieldData(Bundle data);
-	protected abstract void retrieveFieldData(Bundle data);
+	//protected abstract void saveFieldData(Bundle data);
+	//protected abstract void retrieveFieldData(Bundle data);
+    // Ld. fent
 
 	// ForeignKey-eket kell végigellenőrizni, melyikhez tartozó ForeignTextField adta ki az Activity hívást
-    protected abstract void checkReturningSelector( int requestCode, long selectedId );
+//    protected abstract void checkReturningSelector( int requestCode, long selectedId );
 
-
-    // edited: értéke true-ra vált, ha valamelyik field-et módosítottuk
+    // edited: értéke true-ra vált, ha valamelyik column-et módosítottuk
 	// setEdited beállítja, isEdited lekérdezi. Törlés szükségtelen, hiszen nem vonjuk vissza a módosításokat
 	// a beállítást az egyes Field-ek végzik el. 
 	// Arra vigyázni kell, hogy a felhasználó csak onResumed állapotban állíthat be értéket 
@@ -205,7 +337,7 @@ public abstract class GeneralEditFragment extends Fragment
 
 
 	// Kilistázhatjuk egy tábla azon elemeit, melyek a mi elemünkre hivatkoznak
-	// listingActivity: GeneralControllActivity megfelelő táblához tartozó leszármazottja
+	// listingActivity: GenericControllActivity megfelelő táblához tartozó leszármazottja
 	// buttonTitle: mi kerüljön a gombra? (Eredetileg List)
 	// listTitle: a címsor eleje
 	// listOwner: a mi elemünket azonosító (legjobban jellemző) TextView
@@ -222,8 +354,8 @@ public abstract class GeneralEditFragment extends Fragment
     		public void onClick(View view) 
     			{
     			Intent intent = new Intent(getActivity(), listingActivity);
-    			intent.putExtra( GeneralControllActivity.TITLE, listTitle + listOwner.getText() );
-    			intent.putExtra( GeneralListFragment.LIMITED_ITEM, getItemId() );
+    			intent.putExtra( GenericControllActivity.TITLE, listTitle + listOwner.getText() );
+    			intent.putExtra( GenericListFragment.LIMITED_ITEM, getItemId() );
     			startActivity( intent );
     			} 
     		});
@@ -463,7 +595,7 @@ public abstract class GeneralEditFragment extends Fragment
 		
 		if ( resultCode == Activity.RESULT_OK )
 			{
-			long selectedId = data.getLongExtra(GeneralListFragment.SELECTED_ITEM, GeneralListFragment.SELECTED_NONE);
+			long selectedId = data.getLongExtra(GenericListFragment.SELECTED_ITEM, GenericListFragment.SELECTED_NONE);
 			checkReturningSelector( requestCode, selectedId );
 			}
 		}

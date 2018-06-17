@@ -2,62 +2,56 @@ package digitalgarden.mecsek.database.books;
 
 
 import android.content.ContentValues;
-import android.net.Uri;
 import android.os.Bundle;
 
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.database.authors.AuthorsTable;
-import digitalgarden.mecsek.templates.GeneralListFragment;
+import digitalgarden.mecsek.templates.GenericListFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
-import static digitalgarden.mecsek.database.DatabaseMirror.fieldFull;
-import static digitalgarden.mecsek.database.DatabaseMirror.fieldFull_id;
-import static digitalgarden.mecsek.database.DatabaseMirror.field_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;
+import static digitalgarden.mecsek.database.DatabaseMirror.columnFull_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.BOOKS;
 
 
-public class BooksListFragment extends GeneralListFragment
+public class BooksListFragment extends GenericListFragment
 	{
 	// static factory method
 	// http://www.androiddesignpatterns.com/2012/05/using-newinstance-to-instantiate.html
-	public static GeneralListFragment newInstance( long limit )
+	public static GenericListFragment newInstance(long limit )
 		{
-		GeneralListFragment listFragmenet = new BooksListFragment();
+		GenericListFragment listFragmenet = new BooksListFragment();
 
 		Bundle args = new Bundle();
 		
 		// args.putLong( SELECTED_ITEM , SELECT_DISABLED ); Nincs szelektálás!
 		
 		args.putLong( LIMITED_ITEM, limit );
-		args.putString( LIMITED_COLUMN, fieldFull(BooksTable.AUTHOR_ID));
-		args.putString( ORDERED_COLUMN, fieldFull(AuthorsTable.NAME));
+		args.putString( LIMITED_COLUMN, columnFull(BooksTable.AUTHOR_ID));
+		args.putString( ORDERED_COLUMN, columnFull(AuthorsTable.NAME));
 		// args.putString( FILTERED_COLUMN, BooksTable.FULL_SEARCH);
-		args.putStringArray( FILTERED_COLUMN, new String[] {fieldFull(AuthorsTable.SEARCH), fieldFull(BooksTable.SEARCH)});
+		args.putStringArray( FILTERED_COLUMN, new String[] {columnFull(AuthorsTable.SEARCH), columnFull(BooksTable.SEARCH)});
 		
 		listFragmenet.setArguments(args);
 
 		return listFragmenet;
 		}
 
-	protected int getLoaderId()
-		{
-		return table(BOOKS).id();
-		}
+    @Override
+    protected int defineTableIndex()
+        {
+        return BOOKS;
+        }
 
-	@Override
-	protected Uri getContentUri()
-		{
-		return table(BOOKS).contentUri();
-		}
-
-	@Override
+    @Override
 	protected String[] getProjection()
 		{
 		String[] projection = new String[] {
-				fieldFull_id(BOOKS),
-				fieldFull(AuthorsTable.NAME),
-				fieldFull(BooksTable.TITLE) };
+				columnFull_id(BOOKS),
+				columnFull(AuthorsTable.NAME),
+				columnFull(BooksTable.TITLE) };
 
 		return projection;
 		}
@@ -74,9 +68,9 @@ public class BooksListFragment extends GeneralListFragment
 		// Fields from the database (projection)
 		// Must include the _id column for the adapter to work
 		String[] from = new String[] {
-				field(AuthorsTable.NAME),
-				field(BooksTable.TITLE),
-				field_id() };
+				column(AuthorsTable.NAME),
+				column(BooksTable.TITLE),
+				column_id() };
 
 		return from;
 		}
@@ -98,36 +92,36 @@ public class BooksListFragment extends GeneralListFragment
 		{
 		ContentValues values = new ContentValues();
 
-		values.putNull( field(BooksTable.AUTHOR_ID) );
-		values.put( field(BooksTable.TITLE), "Urania");
+		values.putNull( column(BooksTable.AUTHOR_ID) );
+		values.put( column(BooksTable.TITLE), "Urania");
     	getActivity().getContentResolver().insert( table(BOOKS).contentUri(), values);
 
-		values.putNull( field(BooksTable.AUTHOR_ID) );
-		values.put( field(BooksTable.TITLE), "Elrontottam!");
+		values.putNull( column(BooksTable.AUTHOR_ID) );
+		values.put( column(BooksTable.TITLE), "Elrontottam!");
     	getActivity().getContentResolver().insert( table(BOOKS).contentUri(), values);
 
-		values.putNull( field(BooksTable.AUTHOR_ID) );
-		values.put( field(BooksTable.TITLE), "Egri csillagok");
+		values.putNull( column(BooksTable.AUTHOR_ID) );
+		values.put( column(BooksTable.TITLE), "Egri csillagok");
     	getActivity().getContentResolver().insert( table(BOOKS).contentUri(), values);
 
-		values.putNull( field(BooksTable.AUTHOR_ID) );
-		values.put( field(BooksTable.TITLE), "A Pál utcai fiúk");
+		values.putNull( column(BooksTable.AUTHOR_ID) );
+		values.put( column(BooksTable.TITLE), "A Pál utcai fiúk");
     	getActivity().getContentResolver().insert( table(BOOKS).contentUri(), values);
 
-		values.putNull( field(BooksTable.AUTHOR_ID) );
-		values.put( field(BooksTable.TITLE), "Abigél");
+		values.putNull( column(BooksTable.AUTHOR_ID) );
+		values.put( column(BooksTable.TITLE), "Abigél");
     	getActivity().getContentResolver().insert( table(BOOKS).contentUri(), values);
 
-		values.putNull( field(BooksTable.AUTHOR_ID) );
-		values.put( field(BooksTable.TITLE), "Tüskevár");
+		values.putNull( column(BooksTable.AUTHOR_ID) );
+		values.put( column(BooksTable.TITLE), "Tüskevár");
 		getActivity().getContentResolver().insert( table(BOOKS).contentUri(), values);
 
-		values.putNull( field(BooksTable.AUTHOR_ID) );
-		values.put( field(BooksTable.TITLE), "Ábel a rengetegben");
+		values.putNull( column(BooksTable.AUTHOR_ID) );
+		values.put( column(BooksTable.TITLE), "Ábel a rengetegben");
     	getActivity().getContentResolver().insert( table(BOOKS).contentUri(), values);
 
-		values.putNull( field(BooksTable.AUTHOR_ID) );
-		values.put( field(BooksTable.TITLE), "Példa Fibinek");
+		values.putNull( column(BooksTable.AUTHOR_ID) );
+		values.put( column(BooksTable.TITLE), "Példa Fibinek");
 		getActivity().getContentResolver().insert( table(BOOKS).contentUri(), values);
 		}
 

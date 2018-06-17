@@ -10,14 +10,14 @@ import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.database.medications.MedicationsControllActivity;
 import digitalgarden.mecsek.formtypes.EditTextField;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GeneralEditFragment;
+import digitalgarden.mecsek.templates.GenericEditFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
 
 
-public class PillsEditFragment extends GeneralEditFragment
+public class PillsEditFragment extends GenericEditFragment
 	{
 	private EditTextField pillNameField;
 
@@ -53,14 +53,14 @@ public class PillsEditFragment extends GeneralEditFragment
 		Scribe.note("PillsEditFragment setupFieldsData");
 
 		String[] projection = {
-				field(PillsTable.NAME) };
+				column(PillsTable.NAME) };
 		Cursor cursor = getActivity().getContentResolver().query(getItemContentUri(), projection, null, null, null);
 
 		if (cursor != null) // Ez vajon kell? 
 			{
 			cursor.moveToFirst();
 
-			pillNameField.setText(cursor.getString(cursor.getColumnIndexOrThrow( field(PillsTable.NAME) )));
+			pillNameField.setText(cursor.getString(cursor.getColumnIndexOrThrow( column(PillsTable.NAME) )));
 
 			// Always close the cursor
 			cursor.close();
@@ -75,7 +75,7 @@ public class PillsEditFragment extends GeneralEditFragment
 		String name = pillNameField.getText().toString();
 
 	    ContentValues values = new ContentValues();
-	    values.put( field(PillsTable.NAME), name);
+	    values.put( column(PillsTable.NAME), name);
 	    
 	    return values;
 		}

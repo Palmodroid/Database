@@ -10,8 +10,8 @@ import digitalgarden.mecsek.database.books.BooksTable;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.StringUtils;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
-import static digitalgarden.mecsek.database.DatabaseMirror.field_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.BOOKS;
@@ -35,16 +35,16 @@ public class BooksTableExportImport extends GeneralTableExportImport
 	protected String[] getProjection()
 		{
 		return new String[] {
-                field(AuthorsTable.NAME),
-                field(BooksTable.TITLE) };
+                column(AuthorsTable.NAME),
+                column(BooksTable.TITLE) };
 		}
 
 	@Override
 	protected String[] getRowData(Cursor cursor)
 		{
 		return new String[] { 
-			cursor.getString( cursor.getColumnIndexOrThrow( field(AuthorsTable.NAME ))),
-			cursor.getString( cursor.getColumnIndexOrThrow( field(BooksTable.TITLE ))) };
+			cursor.getString( cursor.getColumnIndexOrThrow( column(AuthorsTable.NAME ))),
+			cursor.getString( cursor.getColumnIndexOrThrow( column(BooksTable.TITLE ))) };
 		}
 
 	@Override
@@ -73,12 +73,12 @@ public class BooksTableExportImport extends GeneralTableExportImport
 		ContentValues values = new ContentValues();
 		
 		if ( authorId == ID_NULL )
-    		values.putNull( field(BooksTable.AUTHOR_ID) );
+    		values.putNull( column(BooksTable.AUTHOR_ID) );
 		else
-    		values.put( field(BooksTable.AUTHOR_ID), authorId );
+    		values.put( column(BooksTable.AUTHOR_ID), authorId );
 		
 		records[2] = StringUtils.revertFromEscaped( records[2] );
-		values.put( field(BooksTable.TITLE), records[2] );
+		values.put( column(BooksTable.TITLE), records[2] );
 				
 		getContentResolver()
 			.insert( table(BOOKS).contentUri(), values);
@@ -100,17 +100,17 @@ public class BooksTableExportImport extends GeneralTableExportImport
 		long authorId = ID_MISSING;
 		
 		String[] projection = {
-			    field_id(),
-                field(AuthorsTable.NAME) };
+			    column_id(),
+                column(AuthorsTable.NAME) };
 		Cursor cursor = getContentResolver()
 			.query(table(AUTHORS).contentUri(), projection,
-				   field(AuthorsTable.NAME) + "=\'" + StringUtils.revertFromEscaped( authorName ) + "\'",
+				   column(AuthorsTable.NAME) + "=\'" + StringUtils.revertFromEscaped( authorName ) + "\'",
 				   null, null);
 
 		if ( cursor != null)
 			{
 			if (cursor.moveToFirst())
-				authorId = cursor.getLong( cursor.getColumnIndexOrThrow( field_id() ) );
+				authorId = cursor.getLong( cursor.getColumnIndexOrThrow( column_id() ) );
 			cursor.close();
 			}
 		

@@ -9,7 +9,7 @@ import digitalgarden.mecsek.database.patients.PatientsTable;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.StringUtils;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.field;
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
 
@@ -32,22 +32,22 @@ public class PatientsTableExportImport extends GeneralTableExportImport
 	protected String[] getProjection()
 		{
 		return new String[] {
-				field(PatientsTable.NAME),
-                field(PatientsTable.DOB),
-                field(PatientsTable.TAJ),
-                field(PatientsTable.PHONE),
-                field(PatientsTable.NOTE) };
+				column(PatientsTable.NAME),
+                column(PatientsTable.DOB),
+                column(PatientsTable.TAJ),
+                column(PatientsTable.PHONE),
+                column(PatientsTable.NOTE) };
 		}
 
 	@Override
 	protected String[] getRowData(Cursor cursor)
 		{
 		return new String[] {
-				cursor.getString( cursor.getColumnIndexOrThrow( field(PatientsTable.NAME) )),
-				cursor.getString( cursor.getColumnIndexOrThrow( field(PatientsTable.DOB) )),
-				cursor.getString( cursor.getColumnIndexOrThrow( field(PatientsTable.TAJ) )),
-				cursor.getString( cursor.getColumnIndexOrThrow( field(PatientsTable.PHONE) )),
-				cursor.getString( cursor.getColumnIndexOrThrow( field(PatientsTable.NOTE) )) };
+				cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.NAME) )),
+				cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.DOB) )),
+				cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.TAJ) )),
+				cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.PHONE) )),
+				cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.NOTE) )) };
 		}
 
 	@Override
@@ -69,19 +69,19 @@ public class PatientsTableExportImport extends GeneralTableExportImport
         ContentValues values = new ContentValues();
 
         records[1] = StringUtils.revertFromEscaped( records[1] );
-        values.put( field(PatientsTable.NAME), records[1] );
+        values.put( column(PatientsTable.NAME), records[1] );
 
         records[2] = StringUtils.revertFromEscaped( records[2] );
-        values.put( field(PatientsTable.DOB), records[2] );
+        values.put( column(PatientsTable.DOB), records[2] );
 
         records[3] = StringUtils.revertFromEscaped( records[3] );
-        values.put( field(PatientsTable.TAJ), records[3] );
+        values.put( column(PatientsTable.TAJ), records[3] );
 
         records[4] = StringUtils.revertFromEscaped( records[4] );
-        values.put( field(PatientsTable.PHONE), records[4] );
+        values.put( column(PatientsTable.PHONE), records[4] );
 
         records[5] = StringUtils.revertFromEscaped( records[5] );
-        values.put( field(PatientsTable.NOTE), records[5] );
+        values.put( column(PatientsTable.NOTE), records[5] );
 
         getContentResolver()
                 .insert( table(PATIENTS).contentUri(), values);

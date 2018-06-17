@@ -24,13 +24,13 @@ public final class PatientsTable extends GenericTable
     public static int SEARCH;
 
     @Override
-    public void defineFields()
+    public void defineColumns()
         {
-        NAME = addField( "name", "TEXT");
-        DOB = addField( "dob", "TEXT");
-        TAJ = addField( "taj", "TEXT");
-        PHONE = addField( "phone", "TEXT");
-        NOTE = addField( "note", "TEXT");
-        SEARCH = addSearchFieldFor( NAME );
+        NAME = addColumn( "name", "TEXT");
+        DOB = addColumn( "dob", "TEXT");
+        TAJ = addColumn( "taj", "TEXT");
+        PHONE = addColumn( "phone", "TEXT");
+        NOTE = addColumn( "note", "TEXT");
+        SEARCH = addSearchColumnFor( NAME );
         }
     }
