@@ -6,8 +6,11 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.formtypes.ForeignKey.ForeignField;
+import digitalgarden.mecsek.scribe.Scribe;
+
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
 
 // http://stackoverflow.com/questions/9387000/android-execute-code-on-variable-change
@@ -16,7 +19,9 @@ public class ForeignTextField extends TextView implements ForeignField
 	{
 	// a kapcsolt foreignKey(tábla és elem), és a mező, amit megjelenítünk
 	private ForeignKey foreignKey;
-	private String foreignField;
+    private int foreignTableIndex;
+    private int foreignColumnIndex;
+	//private String foreignField;
 	
     public ForeignTextField(Context context) 
     	{
@@ -38,16 +43,16 @@ public class ForeignTextField extends TextView implements ForeignField
     	{
 		if (newId >= 0L)
 			{
-        	Uri uri = Uri.parse( foreignKey.getTable() + "/" + newId);
+        	Uri uri = Uri.parse( table(foreignTableIndex).contentUri() + "/" + newId);
     		String[] projection = { 
-    			foreignField };
+    			column(foreignColumnIndex) };
     		Cursor cursor = getContext().getContentResolver().query(uri, projection, null, null, null);
 
     		if (cursor != null) // Ez vajon kell? 
     			{
     			cursor.moveToFirst();
 
-    			String field = cursor.getString(cursor.getColumnIndexOrThrow(  foreignField ));
+    			String field = cursor.getString(cursor.getColumnIndexOrThrow( column(foreignColumnIndex) ));
     			Scribe.note( "Author: " + field + " set from id: " + newId );
     			setText( field );
     			
@@ -62,13 +67,14 @@ public class ForeignTextField extends TextView implements ForeignField
     // Mielőtt a mezőt használni tudnánk, linkelni kell a megfelelő ForeignKey-jel
     // foreignKey - a táblát és elemet meghatározó foreign key
     // foreignField - és a mező, amelyet az előbbiek alapján megjelenítünk 
-    public void link( ForeignKey foreignKey, String foreignField)  
+    public void link( ForeignKey foreignKey, int foreignTableIndex, int foreignColumnIndex )
 		{
 		// bejegyeztetjük magunkat a Foreign Key listenerei közé
 		foreignKey.setForeignField( this );
 		
 		this.foreignKey = foreignKey;
-		this.foreignField = foreignField;
+		this.foreignTableIndex = foreignTableIndex;
+        this.foreignColumnIndex = foreignColumnIndex;
 		}
 
     }

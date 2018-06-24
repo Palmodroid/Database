@@ -14,7 +14,7 @@
 		android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	<digitalgarden.mecsek.formtypes.ForeignTextField
-		android:id="@+id/edittext_pill"
+		android:id="@+id/foreigntext_pill_name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 
@@ -39,14 +39,14 @@
         android:layout_margin="5dp" >
 
         <digitalgarden.mecsek.formtypes.ForeignTextField
-            android:id="@+id/edittext_patient"
+            android:id="@+id/foreigntext_patient_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/hint_patient"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
 
         <digitalgarden.mecsek.formtypes.ForeignTextField
-            android:id="@+id/edittext_patient_dob"
+            android:id="@+id/foreigntext_patient_dob"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=" - dob - "
@@ -62,7 +62,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <digitalgarden.mecsek.formtypes.EditTextField
-        android:id="@+id/edittext_medication_name"
+        android:id="@+id/foreigntext_medication_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_medication_name" />

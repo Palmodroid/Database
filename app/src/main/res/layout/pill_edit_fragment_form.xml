@@ -14,7 +14,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <digitalgarden.mecsek.formtypes.EditTextField
-        android:id="@+id/edittext_pill_name"
+        android:id="@+id/foreigntext_pill_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_pill_name" />

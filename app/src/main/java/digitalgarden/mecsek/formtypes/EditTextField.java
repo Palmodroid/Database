@@ -67,12 +67,12 @@ public class EditTextField extends EditText
         	});
 		}
 
-    public void setField( Cursor cursor )
+    public void pullData(Cursor cursor )
         {
         setText(cursor.getString(cursor.getColumnIndexOrThrow( column(getFieldIndex() ))));
         }
 
-    public void getField(ContentValues values)
+    public void pushData(ContentValues values)
         {
         values.put(column( getFieldIndex()), getText().toString() );
         }

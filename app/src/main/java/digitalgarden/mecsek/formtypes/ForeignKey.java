@@ -3,7 +3,6 @@ package digitalgarden.mecsek.formtypes;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 import java.util.HashSet;
 import java.util.Set;
 
-import digitalgarden.mecsek.database.medications.MedicationsTable;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.templates.GenericControllActivity;
 import digitalgarden.mecsek.templates.GenericEditFragment;
@@ -22,9 +20,9 @@ import static digitalgarden.mecsek.database.DatabaseMirror.column;
 
 public class ForeignKey
     {
-    public void setKey(Cursor cursor)
+    public void pullData(Cursor cursor)
         {
-        int column = cursor.getColumnIndexOrThrow(column(foreignColumnIndex));
+        int column = cursor.getColumnIndexOrThrow(column(foreignKeyIndex));
         if (cursor.isNull(column))
             setValue(-1L);
         else
@@ -32,21 +30,27 @@ public class ForeignKey
         }
 
 
-    public void getKey(ContentValues values)
+    public void pushData(ContentValues values)
         {
         if (getValue() >= 0)
-            values.put( column( foreignColumnIndex ), getValue());
+            values.put( column(foreignKeyIndex), getValue());
         else
-            values.putNull( column( foreignColumnIndex ) );
+            values.putNull( column(foreignKeyIndex) );
         }
 
 
     /**********************************************************************************************/
-	// A külső tábla, melyre hivatkozunk
-	private Uri foreignTable;
-	
+
+    private int foreignKeyIndex;
+
+    public int getForeignKeyIndex()
+        {
+        return foreignKeyIndex;
+        }
+
     // A külső táblában hivatkozott elem id-je
-    private long foreignId;
+    // Nem, ez inkább a sor értéke
+    private long foreignKeyValue;
     
 	// Ezeket a listener-eket kell értesíteni változás esetén
     // (vagyis ezek a ForeignTextField-ek)
@@ -72,32 +76,26 @@ public class ForeignKey
 	
 	// Konstruktor, alapértelmezetten nincs elem hozzárendelve
 	// foreignTable: melyre a ForeignKey mutat
-	public ForeignKey( Uri foreignTable ) 
+	public ForeignKey( int foreignKeyIndex)
 		{
-		foreignId = -1L;
-		this.foreignTable = foreignTable;
+		foreignKeyValue = -1L;
+		this.foreignKeyIndex = foreignKeyIndex;
 		}
 
 	// Set: értékadás a listener-ek értesítésével
 	public void setValue( long newId ) 
 		{
-		foreignId = newId;
+		foreignKeyValue = newId;
 		for (ForeignField field:foreignFields) 
 			{
-			field.onValueChanged( foreignId );
+			field.onValueChanged(foreignKeyValue);
 	        }
-	    }
-
-	// Get: tábla lekérdezés
-	public Uri getTable() 
-		{
-		return foreignTable;
 	    }
 
 	// Get: id lekérdezés
 	public long getValue() 
 		{
-		return foreignId;
+		return foreignKeyValue;
 	    }
 
 	// Létrehozás (EditFragment-tel együtt) után
@@ -147,7 +145,7 @@ public class ForeignKey
 			}
 		
 		foreignFields.add(field);
-		field.onValueChanged( foreignId );
+		field.onValueChanged(foreignKeyValue);
 		
 		// Beállítjuk, hogy érintésre a megfelelő selectorActivity elinduljon
 		field.setOnTouchListener( new View.OnTouchListener()

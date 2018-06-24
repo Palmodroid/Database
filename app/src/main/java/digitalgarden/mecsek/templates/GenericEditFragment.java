@@ -60,72 +60,92 @@ import static digitalgarden.mecsek.database.DatabaseMirror.table;
  * ??? Hol definiáljuk a Foreign Table-t, ill. egyáltalán van-e rá szükség ???
  * Igen, kell; mert nem a kapcsolt, hanem csak az idegen táblából keresi ki a megfelelő értéket.
  * Talán logikusabb a ForeignTextField-ben megadni, mint tábla-oszlop párt.
+ * ^^^^
+ * Ez lesz a megoldás!
  *
  * A Selector is ismeri a Foreign Table-t. (Mivel több selector is lehet, ezért a Table nem ismeri
  * a selectort) Ennek alapján viszont felesleges a ForeignTable definiálása, mert a Selector tartalmazza.
  * ??? Vajon lehet olyan helyzet, hogy nem kell Selector ???
  *
+ * A msik probléma, hogy a Selector egy Activity, amiből a tábla csak akkor érhető el, ha van példánya.
+ * Vagy static-nak kell definiálni, de akkor meg nem tudjuk kikényszeríteni a létrehozását, hacsak nem
+ * egy throw utasítással.
+ *
  */
 public abstract class GenericEditFragment extends Fragment
 	{
+    public final static String EDITED_ITEM = "edited item";
+    public final static long NEW_ITEM = -1L;
 
     private ArrayList<EditTextField> editTextFields = new ArrayList<>();
 
+    private ArrayList<ForeignKey> foreignKeys = new ArrayList<>();
+
+    // Az űrlapot két adat azonosítja:
+    // - a tábla neve: getTableContentUri()
+    // - a sor azonosítója: getItemId() ((NEW_ITEM, ha üres űrlapról van szó))
+    // !! Ez mindig konstans egy adott űrlapnál/EditFragment-nél!!
+    // A konkrét sorra a getItemContentUri()-val is hivatkozhatunk
+
+    /**
+     * @return index of the table
+     */
+    protected abstract int defineTableIndex();
+
+    // Leszármazottak által biztosított metódusok
+    // A beépítésre kerülő űrlap azonosítóját adja vissza
+    protected abstract int defineFormLayout();
+
+    // Az űrlap mezőinek megfelelő objektumok itt kerülnek létrehozásra, ill. összekapcsolásra az adatbázissal
+    protected abstract void setupFormLayout();
 
     public EditTextField addEditTextField( int editTextFieldId, int columnIndex )
         {
-        EditTextField editTextField = (EditTextField) getView().findViewById( editTextFieldId );
+        EditTextField editTextField = (EditTextField) view.findViewById( editTextFieldId );
         editTextField.connect( this, columnIndex );
         editTextFields.add( editTextField );
 
         return editTextField;
         }
 
-    public void setFields(Cursor cursor )
+    public ForeignKey addForeignKey( int foreignKeyIndex, Class<?> selectorActivity,
+                                     String selectorTitle, TextView selectorTitleOwner )
         {
-        for (EditTextField field : editTextFields)
-            {
-            field.setField(cursor);
-            }
-        for (ForeignKey key : foreignKeys)
-            {
-            key.setKey(cursor);
-            }
+        ForeignKey foreignKey = new ForeignKey( foreignKeyIndex );
+        foreignKey.connect( this );
+        foreignKey.setupSelector( selectorActivity, selectorTitle, selectorTitleOwner );
+        foreignKeys.add( foreignKey );
+        return foreignKey;
         }
 
-    public void getFields( ContentValues values )
+    /**
+     * A textField-et összekapcsolja az idegen tábla idegen oszlopával. A sort a foreignKey
+     * választja ki.
+     * @param foreignKey
+     * @param foreignTextFieldId
+     * @param foreignTableIndex
+     * @param foreignColumnIndex
+     * @return a szöveges mező
+     */
+    public ForeignTextField addForeignTextField(ForeignKey foreignKey, int foreignTextFieldId,
+                                                int foreignTableIndex, int foreignColumnIndex )
         {
-        for (EditTextField field : editTextFields)
-            {
-            field.getField( values );
-            }
-        for (ForeignKey key : foreignKeys)
-            {
-            key.getKey( values );
-            }
-        }
-
-
-    public ForeignTextField addForeignTextField(ForeignKey foreignKey, int foreignTextFieldId, int columnIndex )
-        {
-        ForeignTextField foreignTextField = (ForeignTextField) getView().findViewById( foreignTextFieldId );
-        foreignTextField.link( foreignKey, column( columnIndex ));
+        ForeignTextField foreignTextField = (ForeignTextField) view.findViewById( foreignTextFieldId );
+        foreignTextField.link( foreignKey, foreignTableIndex, foreignColumnIndex );
         // Ezt teljes egészében a foreignKey kezeli
         return foreignTextField;
         }
 
-
-    private ArrayList<ForeignKey> foreignKeys = new ArrayList<>();
-
-
-    public ForeignKey addForeignKey( int foreignKeyIndex, int foreignTableIndex,
-                                     String selectorTitle, TextView selectorTitleOwner )
+    protected long getRowIndex()
         {
-        ForeignKey foreignKey = new ForeignKey( table( foreignTableIndex ).contentUri() );
-        foreignKey.connect( this );
-        foreignKey.setupSelector( table(foreignTableIndex).selectorActivity(), selectorTitle, selectorTitleOwner );
-        foreignKeys.add( foreignKey );
-        return foreignKey;
+        // Ez korábban egy külső változó is azonosította, így munkásabb, de nincs külön hivatkozás
+        Bundle args = getArguments();
+        return (args != null) ? args.getLong(EDITED_ITEM, NEW_ITEM) : NEW_ITEM;
+        }
+
+    protected Uri getItemContentUri()
+        {
+        return Uri.parse( table(defineTableIndex()).contentUri() + "/" + getRowIndex());
         }
 
     protected void checkReturningSelector(int requestCode, long selectedId)
@@ -136,69 +156,89 @@ public abstract class GenericEditFragment extends Fragment
             }
         }
 
-
-    @Override
-    protected void saveFieldData(Bundle data)
+    protected void saveForeignKeyData(Bundle data)
         {
         for (ForeignKey key : foreignKeys)
             {
-            data.putLong( column(foreignKeyIndex), key.getValue() );
+            data.putLong( column(key.getForeignKeyIndex()), key.getValue() );
             }
         }
 
-    @Override
-    protected void retrieveFieldData(Bundle data)
+    protected void retrieveForeignKeyData(Bundle data)
         {
         for (ForeignKey key : foreignKeys)
             {
-            key.setValue( data.getLong( column(key.foreignKeyIndex) ) );
+            key.setValue( data.getLong( column(key.getForeignKeyIndex()) ) );
             }
         }
 
+    // Az űrlap mezőit id alapján feltöltjük
+    protected void pullData( )
+        {
+        Scribe.note("pullData");
+
+        if (getRowIndex() < 0L)
+            return; // Még nem létező adat, nem kell kitölteni
+
+        ArrayList<String> projection = new ArrayList<>();
+        for (EditTextField field : editTextFields)
+            {
+            projection.add( column( field.getFieldIndex() ));
+            }
+        for (ForeignKey key : foreignKeys)
+            {
+            projection.add( column( key.getForeignKeyIndex()) );
+            }
+
+        //https://stackoverflow.com/questions/4042434/converting-arrayliststring-to-string-in-java
+        Cursor cursor = getActivity().getContentResolver().query( getItemContentUri(),
+                projection.toArray(new String[0]), null, null, null );
+
+        if (cursor != null) // Ez vajon kell?
+            {
+            cursor.moveToFirst();
+
+            for (EditTextField field : editTextFields)
+                {
+                field.pullData(cursor);
+                }
+            for (ForeignKey key : foreignKeys)
+                {
+                key.pullData(cursor);
+                }
+
+            // Always close the cursor
+            cursor.close();
+            }
+        }
+
+    // Az űrlap mezőinek értékét egy ContentValue-ba tesszük
+    protected ContentValues pushData()
+        {
+        Scribe.note("pushData");
+
+        ContentValues values = new ContentValues();
+
+        for (EditTextField field : editTextFields)
+            {
+            field.pushData( values );
+            }
+        for (ForeignKey key : foreignKeys)
+            {
+            key.pushData( values );
+            }
+        return values;
+        }
 
 
     /**********************************************************************************************/
-	public final static String EDITED_ITEM = "edited item";
-	public final static long NEW_ITEM = -1L;
-	
-	// Az űrlapot két adat azonosítja:
-	// - a tábla neve: getTableContentUri()
-	// - a sor azonosítója: getItemId() ((NEW_ITEM, ha üres űrlapról van szó))
-	// !! Ez mindig konstans egy adott űrlapnál/EditFragment-nél!!
-	// A konkrét sorra a getItemContentUri()-val is hivatkozhatunk
-	protected abstract Uri getTableContentUri();
-	
-	protected long getItemId()
-		{
-		// Ez korábban egy külső változó is azonosította, így munkásabb, de nincs külön hivatkozás
-        Bundle args = getArguments();
-		return (args != null) ? args.getLong(EDITED_ITEM, NEW_ITEM) : NEW_ITEM;
-		}
-	
-	protected Uri getItemContentUri()
-		{
-       	return Uri.parse( getTableContentUri() + "/" + getItemId());
-		}
 
 
-	// Leszármazottak által biztosított metódusok
-	// A beépítésre kerülő űrlap azonosítóját adja vissza
-	protected abstract int getFormLayout();
-
-	// Az űrlap mezőinek megfelelő objektumok itt kerülnek létrehozásra, ill. összekapcsolásra az adatbázissal
-	protected abstract void setupFormLayout( View view );
-
-	// Az űrlap mezőit id alapján feltöltjük
-	protected abstract void setupFieldsData( long id );
-	
-	// Az űrlap mezőinek értékét egy ContentValue-ba tesszük
-	protected abstract ContentValues getFieldsData();
-	
 	// http://stackoverflow.com/questions/3542333/how-to-prevent-custom-views-from-losing-state-across-screen-orientation-changes
 	// alapján egy custom view is elmentheti az állapotát. (Még nem dolgoztam ki)
 	// DE! Itt nem a customView-t, hanem a ForeignKey-t kell elmenteni, erre szolgál ez a két metódus 
-	//protected abstract void saveFieldData(Bundle data);
-	//protected abstract void retrieveFieldData(Bundle data);
+	//protected abstract void saveForeignKeyData(Bundle data);
+	//protected abstract void retrieveForeignKeyData(Bundle data);
     // Ld. fent
 
 	// ForeignKey-eket kell végigellenőrizni, melyikhez tartozó ForeignTextField adta ki az Activity hívást
@@ -273,9 +313,10 @@ public abstract class GenericEditFragment extends Fragment
 		Scribe.note("General EDIT Fragment: Code generated: " + codeGenerator);
 		return codeGenerator;
 		}
-	
-	
-	// Az űrlapot getFormLayout() alapján illeszti be
+
+    private View view;
+
+	// Az űrlapot defineFormLayout() alapján illeszti be
 	// Az űrlap mezőkkel történő összekapcsolását setFormLayout() végzi el. (Ezt megelőzően codeGenerator-t nullázuk!)
 	// Az egyes mezők viszont NEM itt kapnak alapértéket!!
 	@Override
@@ -284,15 +325,15 @@ public abstract class GenericEditFragment extends Fragment
 		Scribe.note("General EDIT Fragment onCreateView");
 		
 		// Az alapvető layout egy "stub"-ot tart fenn a form számára. Ezt itt töltjük fel tartalommal
-        View view = inflater.inflate(R.layout.general_edit_fragment, container, false);
+        view = inflater.inflate(R.layout.general_edit_fragment, container, false);
         ViewStub form = (ViewStub) view.findViewById(R.id.stub);
-        form.setLayoutResource( getFormLayout() );
+        form.setLayoutResource( defineFormLayout() );
         form.inflate(); 
 
         buttonAdd = (Button) view.findViewById(R.id.button_add);
         buttonUpdate = (Button) view.findViewById(R.id.button_update);
 
-        if ( getItemId() < 0)
+        if ( getRowIndex() < 0)
         	{
         	Scribe.note(" Id < 0 -> ADD Button activated");
 	        buttonAdd.setOnClickListener(new OnClickListener()
@@ -330,7 +371,7 @@ public abstract class GenericEditFragment extends Fragment
     		});
 
         codeGenerator = 0;
-		setupFormLayout( view );
+		setupFormLayout();
 
         return view;
 		}
@@ -355,7 +396,7 @@ public abstract class GenericEditFragment extends Fragment
     			{
     			Intent intent = new Intent(getActivity(), listingActivity);
     			intent.putExtra( GenericControllActivity.TITLE, listTitle + listOwner.getText() );
-    			intent.putExtra( GenericListFragment.LIMITED_ITEM, getItemId() );
+    			intent.putExtra( GenericListFragment.LIMITED_ITEM, getRowIndex() );
     			startActivity( intent );
     			} 
     		});
@@ -363,7 +404,7 @@ public abstract class GenericEditFragment extends Fragment
 	
 	
 	// Az egyes gombokért felelős akciók
-	// Ha kellenek az adatok (add/update), azokat a getFieldsData() adja meg
+	// Ha kellenek az adatok (add/update), azokat a pushData() adja meg
 	private void addItem()
 		{
 		Scribe.note("Genaral EDIT Fragment: ADD button");
@@ -372,7 +413,7 @@ public abstract class GenericEditFragment extends Fragment
 			{
 			try
 				{
-		    	getActivity().getContentResolver().insert( getTableContentUri(), getFieldsData() );
+		    	getActivity().getContentResolver().insert( table(defineTableIndex()).contentUri(), pushData() );
 				}
 			catch (Exception e)
 				{
@@ -388,11 +429,11 @@ public abstract class GenericEditFragment extends Fragment
 		{
 		Scribe.note("Genaral EDIT Fragment: UPDATE button");
         Activity activity = getActivity();
-		if (getItemId() >= 0 && activity != null)
+		if (getRowIndex() >= 0 && activity != null)
 			{
 			try
 				{
-		    	getActivity().getContentResolver().update( getItemContentUri(), getFieldsData(), null, null);
+		    	getActivity().getContentResolver().update( getItemContentUri(), pushData(), null, null);
 				}
 			catch (Exception e)
 				{
@@ -408,7 +449,7 @@ public abstract class GenericEditFragment extends Fragment
 		{
 		Scribe.note("Genaral EDIT Fragment: DELETE menu");
         Activity activity = getActivity();
-		if (getItemId() >= 0 && activity != null)
+		if (getRowIndex() >= 0 && activity != null)
 			{
 			try
 				{
@@ -428,10 +469,10 @@ public abstract class GenericEditFragment extends Fragment
 	// Ha edited==TRUE, akkor edited-del együtt az összes változónk érvényes, nincs teendő
 	// 		(pl. amikor visszatérünk a ForeignKey miatt meghívott Activity-ből)
 	// Különben: Ha savedInstanceState != null, akkor vannak elmentett értékeink, töltsük vissza őket
-	// retrieveFieldData()
+	// retrieveForeignKeyData()
 	//		(pl. elfordítás miatti újraindítás)
 	// Különben: első indítás (vagy legalábbis nem volt edit), töltsük fel az alapértelmezett értékeket
-	// setupFieldsData
+	// pullData
 	@Override
 	public void onActivityCreated (Bundle savedInstanceState)
 		{
@@ -447,7 +488,7 @@ public abstract class GenericEditFragment extends Fragment
 		// Az ok a kiválasztás volt. Minden OK, csak a kiválasztott elemet kell feltölteni
 		if ( isEdited() )
 			{
-			Scribe.note( "Data was reserved: Id: " + getItemId() + ", isEdited: " + edited );
+			Scribe.note( "Data was reserved: Id: " + getRowIndex() + ", isEdited: " + edited );
 			// a feltöltés korábban megtörtént!
 			}
 		
@@ -461,17 +502,14 @@ public abstract class GenericEditFragment extends Fragment
 			// KETSZER kerul ez a cucc meghivasra, de csak egyszer kap saved... erteket!
 			edited = savedInstanceState.getBoolean("IS_EDITED");
 			
-			Scribe.note("Data from savedInstanceState retrieved: Id: " + getItemId() + ", isEdited: " + edited );
-			retrieveFieldData( savedInstanceState );
+			Scribe.note("Data from savedInstanceState retrieved: Id: " + getRowIndex() + ", isEdited: " + edited );
+			retrieveForeignKeyData( savedInstanceState );
 			}
  
 		else // alapértéket - elvileg csak itt kell beállítani
 			{
-	        if (getItemId() >= 0L)
-	        	{
-	    		setupFieldsData( getItemId() );
-	        	}
-			Scribe.note("Data set from Arguments: Id: " + getItemId() + ", isEdited: " + edited );
+            pullData();
+			Scribe.note("Data set from Arguments: Id: " + getRowIndex() + ", isEdited: " + edited );
 			}
 		
        	}
@@ -483,7 +521,7 @@ public abstract class GenericEditFragment extends Fragment
 		outState.putBoolean("IS_EDITED", edited);
 		
 		// Ez elvileg eredeti módon is jó, de így jobban összhangban van a párjával
-		saveFieldData(outState);
+		saveForeignKeyData(outState);
 		
 		Scribe.note("General EDIT Fragment onSaveInst.: isEdited out:" + edited);
 		}
