@@ -23,11 +23,18 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.Keyboard;
 import digitalgarden.mecsek.utils.StringUtils;
+import digitalgarden.mecsek.utils.Utils;
 
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;
+import static digitalgarden.mecsek.database.DatabaseMirror.columnFull_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
 
@@ -111,21 +118,32 @@ public abstract class GenericListFragment extends ListFragment
         return table( defineTableIndex() ).contentUri();
         }
 
-	// Az elkérendő oszlopok. (Itt FULL neveket kell megadni)
-	protected abstract String[] getProjection();
+    // Az elemek megjelenítéséhez szükséges Layout
+    protected abstract int defineRowLayout();
 
-	// Az elemek megjelenítéséhez szükséges Layout 
-	protected abstract int getRowView();
-	// A megjelenítendő oszlopok (Itt a ROVID neveket kell megadni)
-	protected abstract String[] getFrom();
-	// És a megjelenítéshez tartozó UI elemek
-	protected abstract int[] getTo();
+    protected abstract void setupRowLayout();
+
+    private ArrayList<String> projection = new ArrayList<>();
+    private ArrayList<String> from = new ArrayList<>();
+    private ArrayList<Integer> to = new ArrayList<>();
+
+    protected void addField( int fieldId, int columnIndex)
+        {
+        projection.add( columnFull( columnIndex ));
+        from.add( column( columnIndex ));
+        to.add( fieldId );
+        }
+
+    protected void addIdField()
+        {
+        projection.add( columnFull_id( defineTableIndex() ));
+        from.add( column_id());
+        to.add( R.id.id );
+        }
 
 	// Példák beszúrása
 	protected abstract void addExamples();
 
-	
-	
 	// Az activity-vel történő kommunikáció miatt szükséges részek
 	OnListReturnedListener onListReturnedListener;
 
@@ -215,13 +233,15 @@ public abstract class GenericListFragment extends ListFragment
     	// Itt kell jelezni, ha a Fragment rendelkezik menüvel
     	setHasOptionsMenu(true);
     	// setEmptyText("Database empty"); // Custom View esetén nem használható !!
-    	
+
+        setupRowLayout();
+
 		globalAdapter = new GenericCursorAdapter(
 				getActivity(), 
-				getRowView(),
+				defineRowLayout(),
 				null,
-				getFrom(),
-				getTo(),
+                from.toArray(new String[0]),
+                Utils.convertToIntArray(to),
 				0,
 				getArguments().getLong( SELECTED_ITEM , SELECT_DISABLED )
 				);
@@ -300,7 +320,7 @@ public abstract class GenericListFragment extends ListFragment
 		// http://code.google.com/p/android/issues/detail?id=3153
 		CursorLoader cursorLoader = new CursorLoader(getActivity(),
 				getContentUri(), 
-				getProjection(),
+				projection.toArray(new String[0]),
 				filterClause + and + limitClause, 
 				filterStrings, //new String[] { "%"+filterString+"%" }, // ha nincs filterClause, akkor nem használja fel
 				orderClause );

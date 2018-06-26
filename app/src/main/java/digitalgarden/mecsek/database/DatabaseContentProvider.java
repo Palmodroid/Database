@@ -28,7 +28,7 @@ public class DatabaseContentProvider extends ContentProvider
 		{
 		Scribe.note(CP, "CONTENTPROVIDER: onCreate");
 
-        DatabaseMirror.start();
+        DatabaseMirror.start( getContext() );
 		databaseOpenHelper = new DatabaseOpenHelper( getContext() );
 		return true; 
 		}

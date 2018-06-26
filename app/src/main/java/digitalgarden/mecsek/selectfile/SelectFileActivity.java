@@ -43,8 +43,8 @@ import digitalgarden.mecsek.utils.Keyboard;
 		
 	AsyncTaskDialogFragment
 	
-	ImportingAsyncTask extends TimeConsumingAsyncTask
-	ExportingAsyncTask extends TimeConsumingAsyncTask
+	ImportingAsyncTask extends GenericAsyncTask
+	ExportingAsyncTask extends GenericAsyncTask
  */
  
 /* 

@@ -1,5 +1,6 @@
 package digitalgarden.mecsek.database;
 
+import android.content.Context;
 import android.content.UriMatcher;
 import android.net.Uri;
 
@@ -26,7 +27,7 @@ public class DatabaseMirror
 
     /*** START ***/
 
-    public static void start()
+    public static void start( Context context )
         {
         Scribe.locus(DB);
 
@@ -36,11 +37,8 @@ public class DatabaseMirror
 
         for (GenericTable table : allTables())
             {
+            table.setupContext( context );
             table.defineColumns();
-            }
-
-        for (GenericTable table : allTables() )
-            {
             table.defineUriMatcher( uriMatcher );
             }
         }

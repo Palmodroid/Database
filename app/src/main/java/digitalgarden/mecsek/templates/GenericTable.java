@@ -3,7 +3,9 @@ package digitalgarden.mecsek.templates;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -25,9 +27,14 @@ public abstract class GenericTable
     {
     private int tableId;
 
-    public GenericTable(int table_id)
+    public GenericTable( int table_id )
         {
         this.tableId = table_id;
+        }
+
+    public void setupContext( Context context )
+        {
+        this.context = context;
         }
 
     public int id()
@@ -269,4 +276,61 @@ public abstract class GenericTable
             }
         return projection;
         }
+
+    /*** EXPORT-IMPORT ***/
+
+    private Cursor cursor;
+    private Context context;
+
+    protected abstract Uri getContentUri();
+    protected abstract String[] getProjection();
+    protected abstract String[] getRowData( Cursor cursor );
+    public abstract String getTableName();
+    public abstract void importRow(String[] records);
+
+    protected ContentResolver getContentResolver()
+        {
+        return context.getContentResolver();
+        }
+
+    public int collateRows()
+        {
+        cursor = getContentResolver().query( getContentUri(), getProjection(), null, null, null);
+
+        if (cursor == null)
+            return 0;
+        else
+            return cursor.getCount();
+        }
+
+    public String getNextRow()
+        {
+        if ( cursor!= null && cursor.moveToNext() )
+            {
+            StringBuilder builder = new StringBuilder();
+
+            builder.append( StringUtils.convertToEscaped( getTableName() ));
+
+            String[] data = getRowData(cursor);
+            for (int n=0; n < data.length; n++)
+                {
+                builder.append('\t');
+// Null ellenőrzés!!!
+                builder.append( StringUtils.convertToEscaped( data[n] ));
+                }
+
+            builder.append('\n');
+
+            return builder.toString();
+            }
+        else
+            return null;
+        }
+
+    public void close()
+        {
+        if (cursor != null)
+            cursor.close();
+        }
+
     }

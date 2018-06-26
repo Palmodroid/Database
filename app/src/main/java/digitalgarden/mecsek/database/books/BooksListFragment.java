@@ -10,8 +10,6 @@ import digitalgarden.mecsek.templates.GenericListFragment;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;
-import static digitalgarden.mecsek.database.DatabaseMirror.columnFull_id;
-import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.BOOKS;
 
@@ -46,46 +44,18 @@ public class BooksListFragment extends GenericListFragment
         }
 
     @Override
-	protected String[] getProjection()
-		{
-		String[] projection = new String[] {
-				columnFull_id(BOOKS),
-				columnFull(AuthorsTable.NAME),
-				columnFull(BooksTable.TITLE) };
+    protected int defineRowLayout()
+        {
+        return R.layout.book_list_row_view;
+        }
 
-		return projection;
-		}
-	
-	@Override
-	protected int getRowView()
-		{
-		return R.layout.book_list_row_view;
-		}
-
-	@Override
-	protected String[] getFrom()
-		{
-		// Fields from the database (projection)
-		// Must include the _id column for the adapter to work
-		String[] from = new String[] {
-				column(AuthorsTable.NAME),
-				column(BooksTable.TITLE),
-				column_id() };
-
-		return from;
-		}
-
-	@Override
-	protected int[] getTo()
-		{
-		// the XML defined views which the data will be bound to
-		int[] to = new int[] {
-				R.id.author,
-				R.id.title,
-				R.id.id };
-
-		return to;
-		}
+    @Override
+    protected void setupRowLayout()
+        {
+        addField( R.id.author, AuthorsTable.NAME );
+        addField( R.id.title, BooksTable.TITLE );
+        addIdField();
+        }
 
 	@Override
 	protected void addExamples()

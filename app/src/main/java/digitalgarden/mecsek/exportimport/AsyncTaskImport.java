@@ -8,11 +8,13 @@ import java.io.InputStreamReader;
 
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.scribe.Scribe;
+import digitalgarden.mecsek.templates.GenericTable;
 
+import static digitalgarden.mecsek.database.DatabaseMirror.allTables;
 import static digitalgarden.mecsek.database.DatabaseMirror.database;
 
 
-class AsyncTaskImport extends TimeConsumingAsyncTask 
+class AsyncTaskImport extends GenericAsyncTask
 	{
 	// Átadott adatok
 	File inputFile;
@@ -88,12 +90,6 @@ class AsyncTaskImport extends TimeConsumingAsyncTask
 			int count = 0;
 			String row;
 			String[] records;
-			
-			AuthorsTableExportImport authorsImport = new AuthorsTableExportImport( applicationContext );
-			BooksTableExportImport booksImport = new BooksTableExportImport( applicationContext );
-			PillsTableExportImport pillsImport = new PillsTableExportImport( applicationContext );
-			PatientsTableExportImport patientsImport = new PatientsTableExportImport( applicationContext );
-			MedicationsTableExportImport medicationsImport = new MedicationsTableExportImport( applicationContext );
 
 			while ( (row=bufferedReader.readLine()) != null )
 				{
@@ -121,37 +117,24 @@ class AsyncTaskImport extends TimeConsumingAsyncTask
 					// Nincs, legfeljebb az elso rekord
 					Scribe.debug( "Empty row!");
 					}
-				
-				else if ( records[0].equals( authorsImport.getTableName() ))
-					{
-					authorsImport.importRow( records );
-					}
-				
-				else if ( records[0].equals( booksImport.getTableName() ))
-					{
-					booksImport.importRow( records );
-					}
-
-				else if ( records[0].equals( pillsImport.getTableName() ))
-					{
-					pillsImport.importRow( records );
-					}
-
-				else if ( records[0].equals( patientsImport.getTableName() ))
-					{
-					patientsImport.importRow( records );
-					}
-
-				else if ( records[0].equals( medicationsImport.getTableName() ))
-					{
-					medicationsImport.importRow( records );
-					}
 
 				else
-					{
-					Scribe.note("[" + row + "]: malformed row skipped!");
-					}
-				
+                    {
+                    for (GenericTable table : allTables() )
+                        {
+                        if ( records[0].equals( table.getTableName() ))
+                            {
+                            table.importRow( records );
+                            break;
+                            }
+                        }
+                    }
+
+//				else
+//					{
+//					Scribe.note("[" + row + "]: malformed row skipped!");
+//					}
+
 				count += row.length()+1;
 				publishProgress( count );
 
@@ -186,5 +169,5 @@ class AsyncTaskImport extends TimeConsumingAsyncTask
 				}
 			}
 		return null;
-		}      
+		}
 	}   

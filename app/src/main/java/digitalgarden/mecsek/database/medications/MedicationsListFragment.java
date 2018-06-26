@@ -11,7 +11,6 @@ import digitalgarden.mecsek.templates.GenericListFragment;
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull_id;
-import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.MEDICATIONS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
@@ -47,52 +46,20 @@ public class MedicationsListFragment extends GenericListFragment
         }
 
     @Override
-	protected String[] getProjection()
-		{
-		String[] projection = new String[] {
-				columnFull(PillsTable.NAME),
-				columnFull(PatientsTable.NAME),
-				columnFull(PatientsTable.DOB),
-				columnFull(MedicationsTable.NAME),
-				columnFull_id(MEDICATIONS) };
+    protected int defineRowLayout()
+        {
+        return R.layout.medication_list_row_view;
+        }
 
-		return projection;
-		}
-
-	@Override
-	protected int getRowView()
-		{
-		return R.layout.medication_list_row_view;
-		}
-
-	@Override
-	protected String[] getFrom()
-		{
-		// Fields from the database (projection)
-		// Must include the _id column for the adapter to work
-		String[] from = new String[] {
-                column(PillsTable.NAME),
-                column(PatientsTable.NAME),
-                column(PatientsTable.DOB),
-                column(MedicationsTable.NAME),
-			    column_id() };
-
-		return from;
-		}
-
-	@Override
-	protected int[] getTo()
-		{
-		// the XML defined views which the data will be bound to
-		int[] to = new int[] {
-            R.id.pill,
-            R.id.patient,
-            R.id.patient_dob,
-			R.id.medication,
-			R.id.id };
-
-		return to;
-		}
+    @Override
+    protected void setupRowLayout()
+        {
+        addField( R.id.pill, PillsTable.NAME );
+        addField( R.id.patient, PatientsTable.NAME );
+        addField( R.id.patient_dob, PatientsTable.DOB );
+        addField( R.id.medication, MedicationsTable.NAME );
+        addIdField();
+        }
 
 	@Override
 	protected void addExamples()

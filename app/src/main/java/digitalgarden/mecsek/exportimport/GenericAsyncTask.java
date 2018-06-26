@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 
 import digitalgarden.mecsek.R;
 
-class TimeConsumingAsyncTask extends AsyncTask<Void, Integer, Void>
+class GenericAsyncTask extends AsyncTask<Void, Integer, Void>
 	{
 	// átadott adatok - majd a leszármazottakban lesznek
 	
@@ -18,7 +18,7 @@ class TimeConsumingAsyncTask extends AsyncTask<Void, Integer, Void>
 	// de lekérdezni csak az elején biztonságos
 	protected Context applicationContext;
 
-	protected TimeConsumingAsyncTask(AsyncTaskDialogFragment asyncTaskDialogFragment )
+	protected GenericAsyncTask(AsyncTaskDialogFragment asyncTaskDialogFragment )
 		{
 		callerFragment = asyncTaskDialogFragment;
 		applicationContext = asyncTaskDialogFragment.getActivity().getApplicationContext();

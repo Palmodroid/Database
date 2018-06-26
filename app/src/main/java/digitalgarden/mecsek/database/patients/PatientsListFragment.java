@@ -6,7 +6,6 @@ import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.templates.GenericListFragment;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
-import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
 
 
@@ -36,57 +35,23 @@ public class PatientsListFragment extends GenericListFragment
         {
         return PATIENTS;
         }
-
-    @Override
-	protected String[] getProjection()
-		{
-		String[] projection = new String[] {
-				column_id(),
-				column(PatientsTable.NAME),
-				column(PatientsTable.DOB),
-				column(PatientsTable.TAJ),
-				column(PatientsTable.PHONE),
-				column(PatientsTable.NOTE) };
-
-		return projection;
-		}
 	
 	@Override
-	protected int getRowView()
+	protected int defineRowLayout()
 		{
 		return R.layout.patient_list_row_view;
 		}
 
-	@Override
-	protected String[] getFrom()
-		{
-		// Fields from the database (projection)
-		// Must include the _id column for the adapter to work
-		String[] from = new String[] {
-				column(PatientsTable.NAME),
-				column(PatientsTable.DOB),
-				column(PatientsTable.TAJ),
-				column(PatientsTable.PHONE),
-				column(PatientsTable.NOTE),
-				column_id() };
-
-		return from;
-		}
-
-	@Override
-	protected int[] getTo()
-		{
-		// the XML defined views which the data will be bound to
-		int[] to = new int[] {
-				R.id.name,
-				R.id.dob,
-				R.id.taj,
-				R.id.phone,
-				R.id.note,
-				R.id.id };
-
-		return to;
-		}
+    @Override
+    protected void setupRowLayout()
+        {
+        addField( R.id.name, PatientsTable.NAME );
+        addField( R.id.dob, PatientsTable.DOB );
+        addField( R.id.taj, PatientsTable.TAJ );
+        addField( R.id.phone, PatientsTable.PHONE );
+        addField( R.id.note, PatientsTable.NOTE );
+        addIdField();
+        }
 
 	@Override
 	protected void addExamples()

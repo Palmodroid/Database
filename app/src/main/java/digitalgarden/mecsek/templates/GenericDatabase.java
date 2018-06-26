@@ -21,5 +21,4 @@ public abstract class GenericDatabase
         {
         return addTableToDatabase(table);
         }
-
 	}

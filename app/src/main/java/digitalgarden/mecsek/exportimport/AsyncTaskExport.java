@@ -11,11 +11,13 @@ import java.util.Locale;
 
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.scribe.Scribe;
+import digitalgarden.mecsek.templates.GenericTable;
 
+import static digitalgarden.mecsek.database.DatabaseMirror.allTables;
 import static digitalgarden.mecsek.database.DatabaseMirror.database;
 
 
-class AsyncTaskExport extends TimeConsumingAsyncTask 
+class AsyncTaskExport extends GenericAsyncTask
 	{
 	// Átadott adatok
 	File outputFile;
@@ -41,18 +43,12 @@ class AsyncTaskExport extends TimeConsumingAsyncTask
 		if ( !isRunning() )
 			return null;
 
-		GeneralTableExportImport authorsExport = new AuthorsTableExportImport( applicationContext );
-		GeneralTableExportImport booksExport = new BooksTableExportImport( applicationContext );
-		GeneralTableExportImport pillsExport = new PillsTableExportImport( applicationContext );
-		GeneralTableExportImport patientsExport = new PatientsTableExportImport( applicationContext );
-		GeneralTableExportImport medicationsExport = new MedicationsTableExportImport( applicationContext );
-
 		// Elkérjük az adatokat, ezt majd a finally-ban zárjuk le
-		int count = authorsExport.collateRows();
-		count += booksExport.collateRows();
-		count += pillsExport.collateRows();
-		count += patientsExport.collateRows();
-		count += medicationsExport.collateRows();
+        int count = 0;
+        for ( GenericTable table : allTables() )
+            {
+            count += table.collateRows();
+            }
 
 		// Itt állítjuk be a progress végértékét a 2. paraméter használatával
 		int cnt = 0;
@@ -82,64 +78,20 @@ class AsyncTaskExport extends TimeConsumingAsyncTask
 			String data;
 			
 			// http://stackoverflow.com/questions/10723770/whats-the-best-way-to-iterate-an-android-cursor
-			while ( (data=authorsExport.getNextRow()) != null ) 
-				{
-				Scribe.note("AsyncTaskEXPORT exporting: " + data);
-				// http://stackoverflow.com/questions/5949926/what-is-the-difference-between-append-and-write-methods-of-java-io-writer
-				bufferedWriter.append( data );
-
-				publishProgress( ++cnt );
-
-				if (isCancelled())
-					break;
-				}
-
-			while ( (data=booksExport.getNextRow()) != null ) 
-				{
-				Scribe.note("AsyncTaskEXPORT exporting: " + data);
-				// http://stackoverflow.com/questions/5949926/what-is-the-difference-between-append-and-write-methods-of-java-io-writer
-				bufferedWriter.append( data );
-
-				publishProgress( ++cnt );
-
-				if (isCancelled())
-					break;
-				}
-
-            while ( (data=pillsExport.getNextRow()) != null )
+            loopOfTables:
+            for ( GenericTable table : allTables() )
                 {
-                Scribe.note("AsyncTaskEXPORT exporting: " + data);
-                // http://stackoverflow.com/questions/5949926/what-is-the-difference-between-append-and-write-methods-of-java-io-writer
-                bufferedWriter.append( data );
+                while ( (data=table.getNextRow()) != null )
+                    {
+                    Scribe.note("AsyncTaskEXPORT exporting: " + data);
+                    // http://stackoverflow.com/questions/5949926/what-is-the-difference-between-append-and-write-methods-of-java-io-writer
+                    bufferedWriter.append( data );
 
-                publishProgress( ++cnt );
+                    publishProgress( ++cnt );
 
-                if (isCancelled())
-                    break;
-                }
-
-            while ( (data=patientsExport.getNextRow()) != null )
-                {
-                Scribe.note("AsyncTaskEXPORT exporting: " + data);
-                // http://stackoverflow.com/questions/5949926/what-is-the-difference-between-append-and-write-methods-of-java-io-writer
-                bufferedWriter.append( data );
-
-                publishProgress( ++cnt );
-
-                if (isCancelled())
-                    break;
-                }
-
-            while ( (data=medicationsExport.getNextRow()) != null )
-                {
-                Scribe.note("AsyncTaskEXPORT exporting: " + data);
-                // http://stackoverflow.com/questions/5949926/what-is-the-difference-between-append-and-write-methods-of-java-io-writer
-                bufferedWriter.append( data );
-
-                publishProgress( ++cnt );
-
-                if (isCancelled())
-                    break;
+                    if (isCancelled())
+                        break loopOfTables;
+                    }
                 }
 
             bufferedWriter.flush();
@@ -150,12 +102,11 @@ class AsyncTaskExport extends TimeConsumingAsyncTask
 			}
 		finally 
 			{
-			// Always close the cursor
-            medicationsExport.close();
-            patientsExport.close();
-            pillsExport.close();
-			booksExport.close();
-			authorsExport.close();
+            // Always close the cursor
+            for ( GenericTable table : allTables() )
+                {
+                table.close();
+                }
 
 			if (bufferedWriter != null) 
 				{

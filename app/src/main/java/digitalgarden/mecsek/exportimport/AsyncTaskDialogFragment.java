@@ -23,7 +23,7 @@ import digitalgarden.mecsek.selectfile.SelectFileActivity;
 
 public class AsyncTaskDialogFragment extends DialogFragment
 	{
-	private TimeConsumingAsyncTask timeConsumingAsyncTask;
+	private GenericAsyncTask genericAsyncTask;
 	
 	private EditText input;
 
@@ -173,16 +173,16 @@ public class AsyncTaskDialogFragment extends DialogFragment
     	super.onDismiss(dialog);
     	Scribe.note("AsyncTaskDialogFragment onDismiss");
     	
-    	if (timeConsumingAsyncTask != null)
+    	if (genericAsyncTask != null)
     		{
 			// Itt vissza kene menni az activityba
-			// if ( timeConsumingAsyncTask.isTaskFinished() && getActivity() != null)
+			// if ( genericAsyncTask.isTaskFinished() && getActivity() != null)
 			//	{
 			//	Scribe.note("Task ready, SelectCsvActivity also finishes");
 			//	getActivity().finish();
 			//	}
     		finishTaskUnconditionally();
-    		timeConsumingAsyncTask = null; // lehet, hogy felesleges, de magára hagyjuk az AsyncTask-et
+    		genericAsyncTask = null; // lehet, hogy felesleges, de magára hagyjuk az AsyncTask-et
     		}
     	}
     
@@ -196,10 +196,10 @@ public class AsyncTaskDialogFragment extends DialogFragment
     
     private TaskStatus checkTaskState()
     	{
-    	if ( timeConsumingAsyncTask == null )
+    	if ( genericAsyncTask == null )
     		return TaskStatus.BEFORE_START;
     	
-    	if ( timeConsumingAsyncTask.isRunning() )
+    	if ( genericAsyncTask.isRunning() )
     		return TaskStatus.RUNNING;
     	
    		return TaskStatus.READY;
@@ -218,15 +218,15 @@ public class AsyncTaskDialogFragment extends DialogFragment
 				//int data = Integer.parseInt( input.getText().toString() );
 				if ( getArguments().getSerializable("MODE") == SelectFileActivity.Mode.EXPORT )
 					{
-					timeConsumingAsyncTask = new AsyncTaskExport( this, (File)getArguments().getSerializable("FILE") ); 
+					genericAsyncTask = new AsyncTaskExport( this, (File)getArguments().getSerializable("FILE") );
 					}
 				else
 					{
-					timeConsumingAsyncTask = new AsyncTaskImport( this, (File)getArguments().getSerializable("FILE") );
+					genericAsyncTask = new AsyncTaskImport( this, (File)getArguments().getSerializable("FILE") );
 					}
-				timeConsumingAsyncTask.execute();
+				genericAsyncTask.execute();
 				
-				Scribe.note("AsyncTaskDialogFragment started timeConsumingAsyncTask derivates");
+				Scribe.note("AsyncTaskDialogFragment started genericAsyncTask derivates");
 				}
 			catch (NumberFormatException e)
 				{
@@ -243,7 +243,7 @@ public class AsyncTaskDialogFragment extends DialogFragment
 		Scribe.note("AsyncTaskDialogFragment: finishTaskUnconditionally");
 		
 		// Ha true értéket adunk át, a thread is megszakad, és szemetet hagy hátra by Shane Kirk
-        timeConsumingAsyncTask.cancel(false);
+        genericAsyncTask.cancel(false);
 		}
 	
 	
@@ -329,7 +329,7 @@ public class AsyncTaskDialogFragment extends DialogFragment
 				progressText.setVisibility( View.VISIBLE );
 				
 				message.setVisibility( View.VISIBLE );
-				message.setText( timeConsumingAsyncTask.getReturnedMessage() );
+				message.setText( genericAsyncTask.getReturnedMessage() );
 				
 				buttonStart.setVisibility( View.GONE );
 				// A folyamat ugyan újraindítható, de most ezt nem engedjük meg
