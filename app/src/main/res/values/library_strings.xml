@@ -65,5 +65,5 @@
     
     <string name="menu_export">Export database</string>
     <string name="menu_import">Import records</string>
-    
+
 </resources>

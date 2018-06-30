@@ -10,5 +10,6 @@
     <string name="button_medications_table">Medications</string>
     <string name="button_export">Export</string>
     <string name="button_import">Import</string>
-    
+    <string name="button_drop">Drop database</string>
+
 </resources>

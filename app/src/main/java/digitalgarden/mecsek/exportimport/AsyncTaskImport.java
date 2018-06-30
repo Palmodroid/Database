@@ -90,6 +90,7 @@ class AsyncTaskImport extends GenericAsyncTask
 			int count = 0;
 			String row;
 			String[] records;
+            boolean rowMissing;
 
 			while ( (row=bufferedReader.readLine()) != null )
 				{
@@ -120,20 +121,21 @@ class AsyncTaskImport extends GenericAsyncTask
 
 				else
                     {
+                    rowMissing = true;
                     for (GenericTable table : allTables() )
                         {
-                        if ( records[0].equals( table.getTableName() ))
+                        if ( records[0].equals( table.name() ))
                             {
                             table.importRow( records );
+                            rowMissing = false;
                             break;
                             }
                         }
+				    if ( rowMissing )
+					    {
+					    Scribe.note("[" + row + "]: malformed row skipped!");
+					    }
                     }
-
-//				else
-//					{
-//					Scribe.note("[" + row + "]: malformed row skipped!");
-//					}
 
 				count += row.length()+1;
 				publishProgress( count );

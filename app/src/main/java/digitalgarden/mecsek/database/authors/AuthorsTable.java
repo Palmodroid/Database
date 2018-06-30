@@ -3,7 +3,6 @@ package digitalgarden.mecsek.database.authors;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.templates.GenericTable;
@@ -37,28 +36,9 @@ public final class AuthorsTable extends GenericTable
         }
 
     @Override
-    protected Uri getContentUri()
+    public void defineExportImportColumns()
         {
-        return table(AUTHORS).contentUri();
-        }
-
-    @Override
-    protected String[] getProjection()
-        {
-        return new String[] { column(AuthorsTable.NAME) };
-        }
-
-    @Override
-    protected String[] getRowData(Cursor cursor)
-        {
-        return new String[]
-                { cursor.getString( cursor.getColumnIndexOrThrow( column(AuthorsTable.NAME) )) };
-        }
-
-    @Override
-    public String getTableName()
-        {
-        return table(AUTHORS).name();
+        addExportImportColumn( AuthorsTable.NAME );
         }
 
     @Override

@@ -3,7 +3,6 @@ package digitalgarden.mecsek.database.pills;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.templates.GenericTable;
@@ -37,28 +36,9 @@ public final class PillsTable extends GenericTable
         }
 
     @Override
-    protected Uri getContentUri()
+    public void defineExportImportColumns()
         {
-        return table(PILLS).contentUri();
-        }
-
-    @Override
-    protected String[] getProjection()
-        {
-        return new String[] { column(PillsTable.NAME) };
-        }
-
-    @Override
-    protected String[] getRowData(Cursor cursor)
-        {
-        return new String[]
-                { cursor.getString( cursor.getColumnIndexOrThrow( column(PillsTable.NAME) )) };
-        }
-
-    @Override
-    public String getTableName()
-        {
-        return table(PILLS).name();
+        addExportImportColumn( PillsTable.NAME );
         }
 
     @Override

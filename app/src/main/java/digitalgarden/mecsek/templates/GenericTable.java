@@ -12,15 +12,17 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 import digitalgarden.mecsek.utils.StringUtils;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.addColumnToDatabase;
-import static digitalgarden.mecsek.database.DatabaseMirror.database;
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.database;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
 public abstract class GenericTable
@@ -282,10 +284,25 @@ public abstract class GenericTable
     private Cursor cursor;
     private Context context;
 
-    protected abstract Uri getContentUri();
-    protected abstract String[] getProjection();
-    protected abstract String[] getRowData( Cursor cursor );
-    public abstract String getTableName();
+    public abstract void defineExportImportColumns();
+
+    private ArrayList<String> createExportImportColumns = new ArrayList<>();
+
+    protected void addExportImportColumn(int columnIndex)
+        {
+        createExportImportColumns.add( column(columnIndex));
+        }
+
+    protected String[] getRowData(Cursor cursor)
+        {
+        ArrayList<String> data = new ArrayList<>();
+        for ( String column : createExportImportColumns )
+            {
+            data.add(cursor.getString( cursor.getColumnIndexOrThrow( column )));
+            }
+        return data.toArray( new String [0]);
+        }
+
     public abstract void importRow(String[] records);
 
     protected ContentResolver getContentResolver()
@@ -295,7 +312,8 @@ public abstract class GenericTable
 
     public int collateRows()
         {
-        cursor = getContentResolver().query( getContentUri(), getProjection(), null, null, null);
+        cursor = getContentResolver().query( contentUri(),
+                createExportImportColumns.toArray( new String[0] ), null, null, null);
 
         if (cursor == null)
             return 0;
@@ -309,7 +327,7 @@ public abstract class GenericTable
             {
             StringBuilder builder = new StringBuilder();
 
-            builder.append( StringUtils.convertToEscaped( getTableName() ));
+            builder.append( StringUtils.convertToEscaped( name() ));
 
             String[] data = getRowData(cursor);
             for (int n=0; n < data.length; n++)
@@ -331,6 +349,50 @@ public abstract class GenericTable
         {
         if (cursor != null)
             cursor.close();
+        }
+
+
+    public long ID_MISSING = -2L;
+    public long ID_NULL = -1L;
+
+    /*
+    A keresőrutin bizonyos mezők alapján keres.
+    Tegyük be az egész hóbelevancot egy ContentValues tömbbe, ahol a KEY értékeknek megfelelő
+    oszlopokban a VALUE értéknek kell szerepelnie.
+    */
+    public long findRow(int tableIndex, ContentValues values)
+        {
+        // NULL ellenőrzés vajon szükséges?
+        long row = ID_MISSING;
+
+        Set<Map.Entry<String, Object>> valueSet = values.valueSet();
+
+        String[] projection = new String[valueSet.size() + 1];
+        StringBuilder selection = new StringBuilder();
+
+        int i = 0;
+        projection[i++] = column_id();
+        for ( Map.Entry<String, Object> entry : valueSet )
+            {
+            if ( entry.getValue() == null || ((String)entry.getValue()).isEmpty() )
+                return ID_NULL;
+            if ( selection.length() != 0 )
+                selection.append(" AND ");
+            selection.append(entry.getKey()).append("=\'").append((String)entry.getValue()).append("\'");
+            projection[i++] = entry.getKey();
+            }
+
+        Cursor cursor = getContentResolver()
+                .query( table(tableIndex).contentUri(), projection, selection.toString(), null, null);
+
+        if ( cursor != null)
+            {
+            if (cursor.moveToFirst())
+                row = cursor.getLong( cursor.getColumnIndexOrThrow( column_id() ) );
+            cursor.close();
+            }
+
+        return row;
         }
 
     }

@@ -33,13 +33,14 @@ public class LibraryDatabase extends GenericDatabase
     public static int PILLS;
     public static int PATIENTS;
 
+    // Ahhoz, hogy a drop table működjön, előbb kell kitörölni a másokra hivatkozó táblákat!
     @Override
     public void defineTables()
         {
-        AUTHORS = addTable( new AuthorsTable(1) );
         BOOKS = addTable( new BooksTable(2) );
+        AUTHORS = addTable( new AuthorsTable(1) );
+        MEDICATIONS = addTable( new MedicationsTable(5) );
         PILLS = addTable( new PillsTable(3) );
         PATIENTS = addTable( new PatientsTable(4) );
-        MEDICATIONS = addTable( new MedicationsTable(5) );
         }
     }

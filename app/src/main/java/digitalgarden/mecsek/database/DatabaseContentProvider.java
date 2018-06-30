@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Bundle;
 
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.templates.GenericTable;
@@ -151,4 +152,20 @@ public class DatabaseContentProvider extends ContentProvider
 		Scribe.note( CP, "CONTENTPROVIDER " + " queried");
 		return cursor;
 		}
+
+    public final static String DROP_METHOD = "drop";
+
+    @Override
+    public Bundle call(String method, String arg, Bundle extras)
+        {
+        if ( DROP_METHOD.equals(method) )
+            {
+            SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
+            databaseOpenHelper.drop(db);
+            databaseOpenHelper.onCreate(db);
+            // No close is needed in contet provider
+            }
+
+        return(null);
+        }
 	}

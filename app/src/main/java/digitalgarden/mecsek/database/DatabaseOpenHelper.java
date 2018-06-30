@@ -38,14 +38,20 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
 		{
+        drop( db );
+        // Create tables again
+		onCreate(db);
+		}
+
+    public void drop( SQLiteDatabase db )
+        {
         for (GenericTable table : allTables() )
             {
             table.drop( db );
             }
-		// Create tables again
-		onCreate(db);
-		}
-	
+        }
+
+
 	// CheckColumns megoldása az egyes ...Database osztályokba kerülhet, jelenleg töröltük.
 	
 	// http://stackoverflow.com/a/3266882

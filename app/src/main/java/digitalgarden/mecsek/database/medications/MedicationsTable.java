@@ -1,8 +1,6 @@
 package digitalgarden.mecsek.database.medications;
 
 import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
 
 import digitalgarden.mecsek.database.patients.PatientsTable;
 import digitalgarden.mecsek.database.pills.PillsTable;
@@ -11,7 +9,6 @@ import digitalgarden.mecsek.templates.GenericTable;
 import digitalgarden.mecsek.utils.StringUtils;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
-import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.MEDICATIONS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
@@ -42,41 +39,28 @@ public final class MedicationsTable extends GenericTable
         PILL_ID = addForeignKey( "pill_id", PILLS );
         PATIENT_ID = addForeignKey( "patient_id", PATIENTS );
         SEARCH = addSearchColumnFor( NAME );
+
+        //addUniqueColumn
+        //addUniqueContstraint(NAME, DOB, TAJ);
+        }
+
+    public void add(int... ints)
+        {
+        ints[ints.length-1]= 5;
         }
 
     @Override
-    protected Uri getContentUri()
+    public void defineExportImportColumns()
         {
-        return table(MEDICATIONS).contentUri();
-        }
+        addExportImportColumn( MedicationsTable.NAME );
 
-    @Override
-    protected String[] getProjection()
-        {
-        return new String[] {
-                column(MedicationsTable.NAME),
-                column(PillsTable.NAME),
-                column(PatientsTable.NAME),
-                column(PatientsTable.DOB),
-                column(PatientsTable.TAJ) };
-        }
+        addExportImportColumn( PillsTable.NAME );
+        // addExportImportForeignKey( PILL_ID, PILLS, PillsTable.NAME );
 
-    @Override
-    protected String[] getRowData(Cursor cursor)
-        {
-        return new String[] {
-                cursor.getString( cursor.getColumnIndexOrThrow( column(MedicationsTable.NAME) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PillsTable.NAME) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.NAME) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.DOB) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.TAJ) ))
-        };
-        }
-
-    @Override
-    public String getTableName()
-        {
-        return table(MEDICATIONS).name();
+        addExportImportColumn( PatientsTable.NAME );
+        addExportImportColumn( PatientsTable.DOB );
+        addExportImportColumn( PatientsTable.TAJ );
+        // addExportImportForeignKey( PATIENT_ID, PATIENTS, PatientsTable.NAME, PatientsTable.DOB, PatientsTable.TAJ );
         }
 
     @Override
@@ -89,14 +73,22 @@ public final class MedicationsTable extends GenericTable
             return;
             }
 
-        long pillId = findPillId( records[2] );
+        ContentValues pillValues = new ContentValues();
+        pillValues.put( column(PillsTable.NAME), StringUtils.revertFromEscaped(records[2]));
+
+        long pillId = findRow( PILLS, pillValues );
         if ( pillId == ID_MISSING )
             {
             Scribe.note( "Pill [" + records[2] + "] does not exists! Item was skipped.");
             return;
             }
 
-        long patientId = findPatientId( records[3], records[4], records[5] );
+        ContentValues patientValues = new ContentValues();
+        patientValues.put( column(PatientsTable.NAME), StringUtils.revertFromEscaped(records[3]));
+        patientValues.put( column(PatientsTable.DOB), StringUtils.revertFromEscaped(records[4]));
+        patientValues.put( column(PatientsTable.TAJ), StringUtils.revertFromEscaped(records[5]));
+
+        long patientId = findRow( PATIENTS, patientValues );
         if ( patientId == ID_MISSING )
             {
             Scribe.note( "Patient [" + records[3] + "] does not exists! Item was skipped.");
@@ -121,70 +113,6 @@ public final class MedicationsTable extends GenericTable
         getContentResolver()
                 .insert( table(MEDICATIONS).contentUri(), values);
         Scribe.debug( "Medication [" + records[1] + "] was inserted.");
-        }
-
-
-    private long ID_MISSING = -2L;
-    private long ID_NULL = -1L;
-
-    // Ezt a keresőrutint nehéz generalizálni, mert az azonosító paraméterek típusa is különböző lehet
-    private long findPillId(String pillName)
-        {
-        if ( pillName == null )
-            {
-            return ID_NULL;
-            }
-
-        long pillId = ID_MISSING;
-
-        String[] projection = {
-                column_id(),
-                column(PillsTable.NAME) };
-        Cursor cursor = getContentResolver()
-                .query( table(PILLS).contentUri(), projection,
-                        column(PillsTable.NAME) + "=\'" + StringUtils.revertFromEscaped( pillName ) + "\'",
-                        null, null);
-
-        if ( cursor != null)
-            {
-            if (cursor.moveToFirst())
-                pillId = cursor.getLong( cursor.getColumnIndexOrThrow( column_id() ) );
-            cursor.close();
-            }
-
-        return pillId;
-        }
-
-    // Ezt a keresőrutint nehéz generalizálni, mert az azonosító paraméterek típusa is különböző lehet
-    private long findPatientId(String patientName, String patientDob, String patientTaj)
-        {
-        if ( patientName == null || patientDob == null || patientTaj == null)
-            {
-            return ID_NULL;
-            }
-
-        long patientId = ID_MISSING;
-
-        String[] projection = {
-                column_id(),
-                column(PatientsTable.NAME),
-                column(PatientsTable.DOB),
-                column(PatientsTable.TAJ) };
-        Cursor cursor = getContentResolver()
-                .query( table(PATIENTS).contentUri(), projection,
-                        column(PatientsTable.NAME) + "=\'" + StringUtils.revertFromEscaped( patientName ) + "\' AND " +
-                                column(PatientsTable.DOB) + "=\'" + StringUtils.revertFromEscaped( patientDob ) + "\' AND " +
-                                column(PatientsTable.TAJ) + "=\'" + StringUtils.revertFromEscaped( patientTaj ) + "\'",
-                        null, null);
-
-        if ( cursor != null)
-            {
-            if (cursor.moveToFirst())
-                patientId = cursor.getLong( cursor.getColumnIndexOrThrow( column_id() ) );
-            cursor.close();
-            }
-
-        return patientId;
         }
 
     }

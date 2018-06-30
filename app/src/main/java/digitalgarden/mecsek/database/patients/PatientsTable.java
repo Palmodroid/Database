@@ -1,8 +1,6 @@
 package digitalgarden.mecsek.database.patients;
 
 import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
 
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.templates.GenericTable;
@@ -45,37 +43,13 @@ public final class PatientsTable extends GenericTable
         }
 
     @Override
-    protected Uri getContentUri()
+    public void defineExportImportColumns()
         {
-        return table(PATIENTS).contentUri();
-        }
-
-    @Override
-    protected String[] getProjection()
-        {
-        return new String[] {
-                column(PatientsTable.NAME),
-                column(PatientsTable.DOB),
-                column(PatientsTable.TAJ),
-                column(PatientsTable.PHONE),
-                column(PatientsTable.NOTE) };
-        }
-
-    @Override
-    protected String[] getRowData(Cursor cursor)
-        {
-        return new String[] {
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.NAME) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.DOB) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.TAJ) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.PHONE) )),
-                cursor.getString( cursor.getColumnIndexOrThrow( column(PatientsTable.NOTE) )) };
-        }
-
-    @Override
-    public String getTableName()
-        {
-        return table(PATIENTS).name();
+        addExportImportColumn( PatientsTable.NAME );
+        addExportImportColumn( PatientsTable.DOB );
+        addExportImportColumn( PatientsTable.TAJ );
+        addExportImportColumn( PatientsTable.PHONE );
+        addExportImportColumn( PatientsTable.NOTE );
         }
 
     @Override

@@ -81,7 +81,18 @@
 	        android:layout_below="@id/button_export"
 	        android:layout_centerHorizontal="true"/>
 
-	</RelativeLayout>
+
+        <Button
+            android:id="@+id/button_drop"
+            android:text="@string/button_drop"
+            android:minEms="10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_below="@id/button_import"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
 
 </ScrollView>
 

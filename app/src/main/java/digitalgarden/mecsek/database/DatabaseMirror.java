@@ -41,6 +41,11 @@ public class DatabaseMirror
             table.defineColumns();
             table.defineUriMatcher( uriMatcher );
             }
+        // Ehhez az összes táblának készen kell lennie
+        for (GenericTable table : allTables())
+            {
+            table.defineExportImportColumns();
+            }
         }
 
 

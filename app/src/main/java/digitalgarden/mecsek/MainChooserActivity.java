@@ -1,6 +1,7 @@
 package digitalgarden.mecsek;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.View.OnClickListener;
 import java.io.File;
 
 import digitalgarden.mecsek.MainChooserDialogFragment.Type;
+import digitalgarden.mecsek.database.DatabaseContentProvider;
 import digitalgarden.mecsek.database.authors.AuthorsControllActivity;
 import digitalgarden.mecsek.database.books.BooksControllActivity;
 import digitalgarden.mecsek.database.medications.MedicationsControllActivity;
@@ -24,6 +26,7 @@ import static digitalgarden.mecsek.Debug.initScribe;
 import static digitalgarden.mecsek.MainChooserDialogFragment.Type.CONFIRM_IMPORT;
 import static digitalgarden.mecsek.MainChooserDialogFragment.Type.CONFIRM_NEW_EXPORT;
 import static digitalgarden.mecsek.MainChooserDialogFragment.Type.CONFIRM_OVERWRITING_EXPORT;
+import static digitalgarden.mecsek.database.DatabaseMirror.database;
 
 public class MainChooserActivity extends FragmentActivity implements PermissionRequestDialog.OnPermissionRequestFinished
 	{
@@ -138,6 +141,17 @@ public class MainChooserActivity extends FragmentActivity implements PermissionR
                     }
                 });
 
+            findViewById(R.id.button_drop).setOnClickListener(new OnClickListener()
+                {
+                public void onClick(View view)
+                    {
+                    Scribe.note("MainActivity Menu: DROP");
+                    getContentResolver().call(
+                            Uri.parse("content://" + database().authority()),
+                            DatabaseContentProvider.DROP_METHOD,
+                            null, null);
+                    }
+                });
             }
         else
             finish();
@@ -315,4 +329,5 @@ public class MainChooserActivity extends FragmentActivity implements PermissionR
 
 		startPorting( portingType );
 		}
-	}
+
+    }

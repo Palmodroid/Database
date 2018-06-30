@@ -26,6 +26,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import digitalgarden.mecsek.R;
+import digitalgarden.mecsek.database.DatabaseContentProvider;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.Keyboard;
 import digitalgarden.mecsek.utils.StringUtils;
@@ -35,6 +36,7 @@ import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
+import static digitalgarden.mecsek.database.DatabaseMirror.database;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
 
@@ -466,3 +468,4 @@ public abstract class GenericListFragment extends ListFragment
 	    }
     
 	}
+
