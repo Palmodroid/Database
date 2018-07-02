@@ -1,4 +1,4 @@
-package digitalgarden.mecsek.templates;
+package digitalgarden.mecsek.generic.database;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.addTableToDatabase;
 

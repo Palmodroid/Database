@@ -6,7 +6,7 @@ import android.os.Bundle;
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.database.patients.PatientsTable;
 import digitalgarden.mecsek.database.pills.PillsTable;
-import digitalgarden.mecsek.templates.GenericListFragment;
+import digitalgarden.mecsek.generic.GenericListFragment;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;

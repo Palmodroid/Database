@@ -8,7 +8,7 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
-import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericEditFragment;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
 

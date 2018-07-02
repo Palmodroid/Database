@@ -1,4 +1,4 @@
-package digitalgarden.mecsek.templates;
+package digitalgarden.mecsek.generic;
 
 import android.content.Context;
 import android.database.Cursor;

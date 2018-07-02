@@ -1,14 +1,6 @@
 package digitalgarden.mecsek.database.patients;
 
-import android.content.ContentValues;
-
-import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericTable;
-import digitalgarden.mecsek.utils.StringUtils;
-
-import static digitalgarden.mecsek.database.DatabaseMirror.column;
-import static digitalgarden.mecsek.database.DatabaseMirror.table;
-import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
+import digitalgarden.mecsek.generic.database.GenericTable;
 
 
 public final class PatientsTable extends GenericTable
@@ -50,8 +42,11 @@ public final class PatientsTable extends GenericTable
         addExportImportColumn( PatientsTable.TAJ );
         addExportImportColumn( PatientsTable.PHONE );
         addExportImportColumn( PatientsTable.NOTE );
+
+        addUniqueConstraint( PatientsTable.NAME, PatientsTable.DOB, PatientsTable.TAJ );
         }
 
+    /*
     @Override
     public void importRow(String[] records)
         {
@@ -83,5 +78,5 @@ public final class PatientsTable extends GenericTable
                 .insert( table(PATIENTS).contentUri(), values);
         Scribe.debug( "Patient [" + records[1] + "] was inserted.");
         }
-
+    */
     }

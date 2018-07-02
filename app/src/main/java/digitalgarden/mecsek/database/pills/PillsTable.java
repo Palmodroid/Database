@@ -1,16 +1,7 @@
 package digitalgarden.mecsek.database.pills;
 
 
-import android.content.ContentValues;
-import android.database.Cursor;
-
-import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericTable;
-import digitalgarden.mecsek.utils.StringUtils;
-
-import static digitalgarden.mecsek.database.DatabaseMirror.column;
-import static digitalgarden.mecsek.database.DatabaseMirror.table;
-import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
+import digitalgarden.mecsek.generic.database.GenericTable;
 
 public final class PillsTable extends GenericTable
     {
@@ -41,6 +32,7 @@ public final class PillsTable extends GenericTable
         addExportImportColumn( PillsTable.NAME );
         }
 
+    /*
     @Override
     public void importRow(String[] records)
         {
@@ -71,5 +63,5 @@ public final class PillsTable extends GenericTable
         if ( cursor != null )
             cursor.close();
         }
-
+    */
     }

@@ -8,7 +8,7 @@ import digitalgarden.mecsek.database.pills.PillsTable;
 import digitalgarden.mecsek.formtypes.EditTextField;
 import digitalgarden.mecsek.formtypes.ForeignKey;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericEditFragment;
 
 import static digitalgarden.mecsek.database.library.LibraryDatabase.MEDICATIONS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;

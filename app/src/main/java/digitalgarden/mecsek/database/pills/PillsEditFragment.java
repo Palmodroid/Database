@@ -4,7 +4,7 @@ import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.database.medications.MedicationsControllActivity;
 import digitalgarden.mecsek.formtypes.EditTextField;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericEditFragment;
 
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
 

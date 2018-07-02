@@ -1,7 +1,8 @@
-package digitalgarden.mecsek.templates;
+package digitalgarden.mecsek.generic;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -265,10 +266,13 @@ public abstract class GenericEditFragment extends Fragment
 	
 	// A szerkesztés végén ide térünk vissza
 	OnFinishedListener onFinishedListener;
-	
+
+    // Ha EDIT befejezte a ténykedését, akkor mindenképp itt tér vissza
+    // Most csak az ADD adja vissza a létrehozott item id-jét, hogy
+    // SELECT mode-ban kiléphessünk. A többi -1L lesz
 	public interface OnFinishedListener 
 		{
-		public void onFinished();
+		public void onFinished( long rowId );
 		}
 	
 	@Override
@@ -409,17 +413,20 @@ public abstract class GenericEditFragment extends Fragment
 		{
 		Scribe.note("Genaral EDIT Fragment: ADD button");
         Activity activity = getActivity();
+        long rowId = -1L;
 		if (activity != null) 
 			{
 			try
 				{
-		    	getActivity().getContentResolver().insert( table(defineTableIndex()).contentUri(), pushData() );
+		    	Uri uri = getActivity().getContentResolver().insert( table(defineTableIndex()).contentUri(), pushData() );
+                rowId = ContentUris.parseId(uri);
 				}
 			catch (Exception e)
 				{
 				Toast.makeText(getActivity(), "ERROR: Add item (" + e.toString() + ")", Toast.LENGTH_SHORT).show();
 				}
-			onFinishedListener.onFinished();
+            Scribe.debug("ROw ID of inserted item is: " + rowId);
+            onFinishedListener.onFinished( rowId );
 			}
 		else
 			Scribe.note("IMPOSSIBLE! ACTIVITY MISSING!!!");
@@ -439,7 +446,7 @@ public abstract class GenericEditFragment extends Fragment
 				{
 				Toast.makeText(getActivity(), "ERROR: Update item (" + e.toString() + ")", Toast.LENGTH_SHORT).show();
 				}
-			onFinishedListener.onFinished();
+			onFinishedListener.onFinished(-1L);
 			}
 		else
 			Scribe.note("ID < 0 or ACTIVITY MISSING!!!");
@@ -459,7 +466,7 @@ public abstract class GenericEditFragment extends Fragment
 				{
 				Toast.makeText(getActivity(), "ERROR: Delete item (" + e.toString() + ")", Toast.LENGTH_SHORT).show();
 				}
-			onFinishedListener.onFinished();
+			onFinishedListener.onFinished(-1L);
 			}
 		else
 			Scribe.note("ID < 0 or ACTIVITY MISSING!!!");
@@ -570,7 +577,7 @@ public abstract class GenericEditFragment extends Fragment
 				public void onClick(DialogInterface dialog,int id) 
 					{
 					Scribe.note("Data was edited, user was asked, till exiting from EDIT Fragment...");
-					onFinishedListener.onFinished();
+					onFinishedListener.onFinished( -1L );
 					}
 				});
 			alertDialogBuilder.setNegativeButton( R.string.confirmation_no, new DialogInterface.OnClickListener() 
@@ -592,7 +599,7 @@ public abstract class GenericEditFragment extends Fragment
 		else
 			{
 			Scribe.note("Data was not edited, exiting from EDIT Fragment...");
-			onFinishedListener.onFinished();
+			onFinishedListener.onFinished( -1L );
 			}
     	}
 

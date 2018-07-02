@@ -5,7 +5,7 @@ import digitalgarden.mecsek.database.authors.AuthorsControllActivity;
 import digitalgarden.mecsek.database.authors.AuthorsTable;
 import digitalgarden.mecsek.formtypes.EditTextField;
 import digitalgarden.mecsek.formtypes.ForeignKey;
-import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericEditFragment;
 
 import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.BOOKS;

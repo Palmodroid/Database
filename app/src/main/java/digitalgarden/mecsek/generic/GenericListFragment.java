@@ -1,4 +1,4 @@
-package digitalgarden.mecsek.templates;
+package digitalgarden.mecsek.generic;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -26,7 +26,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import digitalgarden.mecsek.R;
-import digitalgarden.mecsek.database.DatabaseContentProvider;
 import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.Keyboard;
 import digitalgarden.mecsek.utils.StringUtils;
@@ -36,7 +35,6 @@ import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull;
 import static digitalgarden.mecsek.database.DatabaseMirror.columnFull_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
-import static digitalgarden.mecsek.database.DatabaseMirror.database;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
 
@@ -408,10 +406,16 @@ public abstract class GenericListFragment extends ListFragment
 		return true;
 		}
     
-	public void editFinished()
+	public void editFinished( long rowId )
 		{
 		globalAdapter.clearEditedItem();
-		}
+
+        // Ezt lehet, hogy a másik oldalra (activity) kellene tenni.
+        // De ahhoz a SELECT értéket is az activitynek kellene megkapnia
+        // PRÓBAKÉNT betettük az onFinished() részbe
+        //if (rowId >= 0 && getArguments().getLong( SELECTED_ITEM , SELECT_DISABLED ) != SELECT_DISABLED)
+        //    onListReturnedListener.onItemSelected(rowId);
+        }
 
 	@Override
 	public void onCreateOptionsMenu (Menu menu, MenuInflater inflater)

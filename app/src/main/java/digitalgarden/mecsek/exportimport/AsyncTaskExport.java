@@ -11,7 +11,7 @@ import java.util.Locale;
 
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericTable;
+import digitalgarden.mecsek.generic.database.GenericTable;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.allTables;
 import static digitalgarden.mecsek.database.DatabaseMirror.database;

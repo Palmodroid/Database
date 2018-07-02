@@ -5,9 +5,9 @@ package digitalgarden.mecsek.database.authors;
 // http://stackoverflow.com/a/5796606
 
 
-import digitalgarden.mecsek.templates.GenericControllActivity;
-import digitalgarden.mecsek.templates.GenericEditFragment;
-import digitalgarden.mecsek.templates.GenericListFragment;
+import digitalgarden.mecsek.generic.GenericControllActivity;
+import digitalgarden.mecsek.generic.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericListFragment;
 
 public class AuthorsControllActivity extends GenericControllActivity
 	implements AuthorsListFragment.OnListReturnedListener, AuthorsEditFragment.OnFinishedListener

@@ -83,6 +83,7 @@
 
 
         <Button
+            android:visibility="gone"
             android:id="@+id/button_drop"
             android:text="@string/button_drop"
             android:minEms="10"

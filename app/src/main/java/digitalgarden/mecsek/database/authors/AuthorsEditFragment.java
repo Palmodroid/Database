@@ -3,7 +3,7 @@ package digitalgarden.mecsek.database.authors;
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.database.books.BooksControllActivity;
 import digitalgarden.mecsek.formtypes.EditTextField;
-import digitalgarden.mecsek.templates.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericEditFragment;
 
 import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
 

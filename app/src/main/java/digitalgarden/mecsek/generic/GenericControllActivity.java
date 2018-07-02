@@ -1,4 +1,4 @@
-package digitalgarden.mecsek.templates;
+package digitalgarden.mecsek.generic;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -234,6 +234,7 @@ public abstract class GenericControllActivity extends AppCompatActivity
         finish();
         }
 
+    // ListFragment kiválasztotta editálásra az id elemet
     public void onItemEditing(long id)
         {
         Scribe.note("LIST ITEM was selected for editing: " + id);
@@ -292,14 +293,32 @@ public abstract class GenericControllActivity extends AppCompatActivity
         }
 
     // EditFragment jelzett vissza - befejeztük a szerkesztést.
-    public void onFinished()
+    // rowID csak akkor pozitív, ha sikerrel hozzáadtunk egy új elemet
+    public void onFinished( long rowId )
         {
+        if ( rowId != -1L )
+            {
+            // Ez eddig az editFinished részben volt, de akkor felvillan a List
+            // A másik nagy kérdés, hogy a backStacket nem kell-e kiüríteni.
+            if (getIntent().getLongExtra(GenericListFragment.SELECTED_ITEM,
+                    GenericListFragment.SELECT_DISABLED) != GenericListFragment.SELECT_DISABLED)
+                {
+                // Ugyanaz, mint OnItemEditing
+                // Ezt lehet, h. a fragment is meg tudná tenni
+                Intent i = new Intent();
+                i.putExtra(GenericListFragment.SELECTED_ITEM, rowId);
+                setResult(RESULT_OK, i);
+                finish();
+                return;
+                }
+            }
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         findViewById(R.id.list_frame).setVisibility(View.VISIBLE);
         Fragment listFrag = fragmentManager.findFragmentById(R.id.list_frame);
         if (listFrag != null)
             {
-            ((GenericListFragment) listFrag).editFinished();
+            ((GenericListFragment) listFrag).editFinished( rowId );
             }
 
         fragmentManager.popBackStack();

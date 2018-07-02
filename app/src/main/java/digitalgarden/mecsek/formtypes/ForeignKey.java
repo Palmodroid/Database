@@ -11,9 +11,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericControllActivity;
-import digitalgarden.mecsek.templates.GenericEditFragment;
-import digitalgarden.mecsek.templates.GenericListFragment;
+import digitalgarden.mecsek.generic.GenericControllActivity;
+import digitalgarden.mecsek.generic.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericListFragment;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
 

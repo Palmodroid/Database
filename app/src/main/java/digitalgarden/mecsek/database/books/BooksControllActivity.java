@@ -2,9 +2,9 @@ package digitalgarden.mecsek.database.books;
 
 import android.content.Intent;
 
-import digitalgarden.mecsek.templates.GenericControllActivity;
-import digitalgarden.mecsek.templates.GenericEditFragment;
-import digitalgarden.mecsek.templates.GenericListFragment;
+import digitalgarden.mecsek.generic.GenericControllActivity;
+import digitalgarden.mecsek.generic.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericListFragment;
 
 
 // res:

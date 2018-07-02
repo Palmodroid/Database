@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.Locale;
 
+import digitalgarden.mecsek.generic.database.GenericTable;
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericTable;
 
 import static digitalgarden.mecsek.Debug.DB;
 import static digitalgarden.mecsek.database.DatabaseMirror.allTables;
@@ -38,18 +38,13 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) 
 		{
-        drop( db );
-        // Create tables again
-		onCreate(db);
-		}
-
-    public void drop( SQLiteDatabase db )
-        {
         for (GenericTable table : allTables() )
             {
             table.drop( db );
             }
-        }
+        // Create tables again
+		onCreate(db);
+		}
 
 
 	// CheckColumns megoldása az egyes ...Database osztályokba kerülhet, jelenleg töröltük.

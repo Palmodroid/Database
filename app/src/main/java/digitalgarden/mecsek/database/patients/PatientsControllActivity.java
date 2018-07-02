@@ -4,9 +4,9 @@ package digitalgarden.mecsek.database.patients;
 // res:
 // http://stackoverflow.com/a/5796606
 
-import digitalgarden.mecsek.templates.GenericControllActivity;
-import digitalgarden.mecsek.templates.GenericEditFragment;
-import digitalgarden.mecsek.templates.GenericListFragment;
+import digitalgarden.mecsek.generic.GenericControllActivity;
+import digitalgarden.mecsek.generic.GenericEditFragment;
+import digitalgarden.mecsek.generic.GenericListFragment;
 
 public class PatientsControllActivity extends GenericControllActivity
 	implements PatientsListFragment.OnListReturnedListener, PatientsEditFragment.OnFinishedListener

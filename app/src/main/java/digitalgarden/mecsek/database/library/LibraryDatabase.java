@@ -5,7 +5,7 @@ import digitalgarden.mecsek.database.books.BooksTable;
 import digitalgarden.mecsek.database.medications.MedicationsTable;
 import digitalgarden.mecsek.database.patients.PatientsTable;
 import digitalgarden.mecsek.database.pills.PillsTable;
-import digitalgarden.mecsek.templates.GenericDatabase;
+import digitalgarden.mecsek.generic.database.GenericDatabase;
 
 public class LibraryDatabase extends GenericDatabase
     {
@@ -18,7 +18,7 @@ public class LibraryDatabase extends GenericDatabase
     @Override
     public int version()
         {
-        return 2;
+        return 6;
         }
 
     @Override
@@ -34,13 +34,16 @@ public class LibraryDatabase extends GenericDatabase
     public static int PATIENTS;
 
     // Ahhoz, hogy a drop table működjön, előbb kell kitörölni a másokra hivatkozó táblákat!
+
+    // Viszont az export igényli, hogy előbb a hivatkozott táblák exportálódjanak
+
     @Override
     public void defineTables()
         {
-        BOOKS = addTable( new BooksTable(2) );
         AUTHORS = addTable( new AuthorsTable(1) );
-        MEDICATIONS = addTable( new MedicationsTable(5) );
-        PILLS = addTable( new PillsTable(3) );
+        BOOKS = addTable( new BooksTable(2) );
         PATIENTS = addTable( new PatientsTable(4) );
+        PILLS = addTable( new PillsTable(3) );
+        MEDICATIONS = addTable( new MedicationsTable(5) );
         }
     }

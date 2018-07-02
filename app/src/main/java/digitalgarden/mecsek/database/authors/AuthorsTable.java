@@ -1,16 +1,7 @@
 package digitalgarden.mecsek.database.authors;
 
 
-import android.content.ContentValues;
-import android.database.Cursor;
-
-import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericTable;
-import digitalgarden.mecsek.utils.StringUtils;
-
-import static digitalgarden.mecsek.database.DatabaseMirror.column;
-import static digitalgarden.mecsek.database.DatabaseMirror.table;
-import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
+import digitalgarden.mecsek.generic.database.GenericTable;
 
 public final class AuthorsTable extends GenericTable
     {
@@ -31,7 +22,7 @@ public final class AuthorsTable extends GenericTable
     @Override
     public void defineColumns()
         {
-        NAME = addColumn("name", "TEXT");
+        NAME = addUniqueColumn("name", "TEXT");
         SEARCH = addSearchColumnFor(NAME);
         }
 
@@ -41,6 +32,7 @@ public final class AuthorsTable extends GenericTable
         addExportImportColumn( AuthorsTable.NAME );
         }
 
+    /*
     @Override
     public void importRow(String[] records)
         {
@@ -71,6 +63,6 @@ public final class AuthorsTable extends GenericTable
         if ( cursor != null )
             cursor.close();
         }
-
+        */
 
     }

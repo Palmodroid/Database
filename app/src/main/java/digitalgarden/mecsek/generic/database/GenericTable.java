@@ -1,4 +1,4 @@
-package digitalgarden.mecsek.templates;
+package digitalgarden.mecsek.generic.database;
 
 
 import android.content.ContentResolver;
@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.utils.StringUtils;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.addColumnToDatabase;
@@ -63,15 +64,27 @@ public abstract class GenericTable
 
     private ArrayList<String> createLeftOuterJoin = new ArrayList<>();
 
+    private String createUniqueConstraint = "";
+
     private int searchColumnIndex = -1;
     private int searchColumnIndexFor = -1;
 
-    protected int addColumn(String columnName, String columnType)
+    protected int addColumn(String columnName, String columnType, boolean unique)
         {
         columnName = columnName + "_" + Integer.toString(tableId);
 
-        createColumns.add(columnName + " " + columnType);
+        createColumns.add(columnName + " " + columnType + (unique ? " UNIQUE " : ""));
         return addColumnToDatabase( columnName, name() );
+        }
+
+    protected int addColumn(String columnName, String columnType)
+        {
+        return addColumn( columnName, columnType, false );
+        }
+
+    protected int addUniqueColumn(String columnName, String columnType)
+        {
+        return addColumn( columnName, columnType, true );
         }
 
     // Foreign key rész
@@ -79,7 +92,7 @@ public abstract class GenericTable
         {
         int index = addColumn(columnName, "INTEGER");
         createForeignKeys.add(" FOREIGN KEY (" + column(index) +
-                ") REFERENCES " + table(referenceTableIndex).name() + " (" + column_id() + ") ");
+                ") REFERENCES " + table(referenceTableIndex).name() + " (" + column_id() + ") ON DELETE CASCADE ");
 
         createLeftOuterJoin.add(" LEFT OUTER JOIN " + table(referenceTableIndex).name() +
                 " ON " + columnFull( index ) + "=" + columnFull_id(referenceTableIndex) );
@@ -87,10 +100,24 @@ public abstract class GenericTable
         return index;
         }
 
+    protected void addUniqueConstraint(int... columnIndices)
+        {
+        if ( !createUniqueConstraint.isEmpty() )
+            throw new IllegalArgumentException("Unique constraint is already defined in table " + name());
+        StringBuilder sb = new StringBuilder();
+        for (int columnIndex : columnIndices)
+            {
+            if ( sb.length()!=0 )
+                sb.append(", ");
+            sb.append( column( columnIndex));
+            }
+        createUniqueConstraint = ", UNIQUE ( " + sb.toString() + " ) ";
+        }
+
     protected int addSearchColumnFor(int columnIndex )
         {
         if ( searchColumnIndex != -1 )
-            throw new IllegalArgumentException("Search column already defined in table " + name());
+            throw new IllegalArgumentException("Search column is already defined in table " + name());
         searchColumnIndex = addColumn("search", "TEXT");
         searchColumnIndexFor = columnIndex;
         return searchColumnIndex;
@@ -108,13 +135,18 @@ public abstract class GenericTable
         for (String createForeignKey : createForeignKeys)
             sb.append(", ").append(createForeignKey);
 
+        sb.append( createUniqueConstraint );
+
         sb.append(")");
+
+        Scribe.note("DB Create: " + sb.toString());
 
         db.execSQL(sb.toString());
         }
 
     public void drop(SQLiteDatabase db)
         {
+        Scribe.note("DB Drop: " + name());
         db.execSQL("DROP TABLE IF EXISTS " + name());
         }
 
@@ -178,7 +210,9 @@ public abstract class GenericTable
                         values.getAsString(column(searchColumnIndexFor))));
                 }
 
-            long id = db.insert( name(), null, values );
+            // ?? insertOnConflict - importnál jó lehet.
+            // Egyébként meg meg kellene kérdezni, hogy felülírja-e az előzőt?
+            long id = db.insertOrThrow( name(), null, values );
 
             return Uri.parse( contentUri() + "/" + id);
             }
@@ -286,24 +320,49 @@ public abstract class GenericTable
 
     public abstract void defineExportImportColumns();
 
-    private ArrayList<String> createExportImportColumns = new ArrayList<>();
+    //private ArrayList<String> createExportImportColumns = new ArrayList<>();
 
     protected void addExportImportColumn(int columnIndex)
         {
-        createExportImportColumns.add( column(columnIndex));
+        exportImportColumns.add(column(columnIndex));
         }
+
+    protected void addExportImportForeignKey(int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
+        {
+        ExportImportForeignKey exportImportForeignKey = new ExportImportForeignKey();
+
+        exportImportForeignKey.foreignKeyIndex = foreignKeyIndex;
+        exportImportForeignKey.forignTableIndex = foreignTableIndex;
+
+        exportImportForeignKey.foreignColumns = new String[foreignColumnIndices.length];
+        for ( int i=0; i<exportImportForeignKey.foreignColumns.length; i++ )
+            {
+            exportImportForeignKey.foreignColumns[i] = column(foreignColumnIndices[i]);
+            }
+
+
+        exportImportForeignKeys.add(exportImportForeignKey);
+        }
+
 
     protected String[] getRowData(Cursor cursor)
         {
         ArrayList<String> data = new ArrayList<>();
-        for ( String column : createExportImportColumns )
+
+        for ( ExportImportForeignKey foreignKey : exportImportForeignKeys )
+            {
+            for ( String column : foreignKey.foreignColumns)
+                {
+                data.add(cursor.getString( cursor.getColumnIndexOrThrow( column )));
+                }
+            }
+
+        for ( String column : exportImportColumns )
             {
             data.add(cursor.getString( cursor.getColumnIndexOrThrow( column )));
             }
         return data.toArray( new String [0]);
         }
-
-    public abstract void importRow(String[] records);
 
     protected ContentResolver getContentResolver()
         {
@@ -312,8 +371,23 @@ public abstract class GenericTable
 
     public int collateRows()
         {
+        ArrayList<String> projection = new ArrayList<>();
+
+        for ( ExportImportForeignKey foreignKey : exportImportForeignKeys )
+            {
+            for ( String column : foreignKey.foreignColumns)
+                {
+                projection.add( column );
+                }
+            }
+
+        for ( String column : exportImportColumns )
+            {
+            projection.add( column );
+            }
+
         cursor = getContentResolver().query( contentUri(),
-                createExportImportColumns.toArray( new String[0] ), null, null, null);
+                projection.toArray( new String [0]), null, null, null);
 
         if (cursor == null)
             return 0;
@@ -395,4 +469,80 @@ public abstract class GenericTable
         return row;
         }
 
+    /*
+        private class ExportImportVersion
+        {
+        private ArrayList<String> exportImportColumns = new ArrayList<>();
+
+        private class ExportImportForeignKey
+            {
+            int foreignKeyIndex;
+            int forignTableIndex;
+            String[] foreignColumns;
+            }
+
+        private ArrayList<ExportImportForeignKey> exportImportForeignKeys = new ArrayList<>();
+        }
+
+        private ExportImportVersion[] exportImportVersions = new ExportImportVersion[database().version()];
+
+        for ( ExportImportVersion version : exportImportVersions )
+            version = new ExportImportVersion - ez megy vajon??
+     */
+
+    private ArrayList<String> exportImportColumns = new ArrayList<>();
+
+    private class ExportImportForeignKey
+        {
+        int foreignKeyIndex;
+        int forignTableIndex;
+        String[] foreignColumns;
+        }
+
+    private ArrayList<ExportImportForeignKey> exportImportForeignKeys = new ArrayList<>();
+
+    public void importRow(String[] records)
+        {
+        int counter = 1;
+        ContentValues values = new ContentValues();
+
+        for (ExportImportForeignKey foreignKey : exportImportForeignKeys)
+            {
+            ContentValues foreignValues = new ContentValues();
+
+            for (String column : foreignKey.foreignColumns)
+                {
+                if (counter == records.length)
+                    return;
+                foreignValues.put(column, StringUtils.revertFromEscaped(records[counter++]));
+                }
+
+            long row = findRow( foreignKey.forignTableIndex, foreignValues);
+
+            if ( row == ID_MISSING )
+                {
+                Scribe.note( "Item does not exists! Row was skipped.");
+                return;
+                }
+            if ( row == ID_NULL )
+                {
+                values.putNull(column(foreignKey.foreignKeyIndex));
+                }
+            else
+                values.put( column(foreignKey.foreignKeyIndex), row );
+            }
+
+        for (String column : exportImportColumns)
+            {
+            if (counter == records.length)
+                return;
+            values.put( column, StringUtils.revertFromEscaped(records[counter++] ));
+            }
+
+        getContentResolver()
+                .insert(contentUri(), values);
+        Scribe.debug( name() + "[" + records[1] + "] was inserted.");
+        }
+
+//            Scribe.note( "Parameters missing from MEDICATIONS row. Item was skipped.");
     }

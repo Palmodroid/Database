@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import digitalgarden.mecsek.scribe.Scribe;
-import digitalgarden.mecsek.templates.GenericTable;
+import digitalgarden.mecsek.generic.database.GenericTable;
 
 import static digitalgarden.mecsek.Debug.CP;
 import static digitalgarden.mecsek.database.DatabaseMirror.allTables;
@@ -158,11 +158,15 @@ public class DatabaseContentProvider extends ContentProvider
     @Override
     public Bundle call(String method, String arg, Bundle extras)
         {
+
+        // DROP nem használható biztonságosan, mert a foreign constraint miatt vagy nem
+        // töröl (mert még létezik a másik tábla), vagy ON DELETE CASCADE esetén keresi a másik
+        // táblát, amit kitöröltünk. Érdekes, hogy update estén működik
         if ( DROP_METHOD.equals(method) )
             {
-            SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
-            databaseOpenHelper.drop(db);
-            databaseOpenHelper.onCreate(db);
+            // SQLiteDatabase db = databaseOpenHelper.getWritableDatabase();
+            // databaseOpenHelper.drop(db);
+            // databaseOpenHelper.onCreate(db);
             // No close is needed in contet provider
             }
 
