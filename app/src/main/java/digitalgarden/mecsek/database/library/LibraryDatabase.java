@@ -18,7 +18,7 @@ public class LibraryDatabase extends GenericDatabase
     @Override
     public int version()
         {
-        return 6;
+        return 7;
         }
 
     @Override

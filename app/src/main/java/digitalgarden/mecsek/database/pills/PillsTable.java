@@ -29,7 +29,7 @@ public final class PillsTable extends GenericTable
     @Override
     public void defineExportImportColumns()
         {
-        addExportImportColumn( PillsTable.NAME );
+        exportImport().addColumnAllVersions( PillsTable.NAME );
         }
 
     /*

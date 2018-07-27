@@ -39,13 +39,22 @@
         android:layout_below="@id/patient_dob"
         android:text="- medication -"
         android:textAppearance="?android:attr/textAppearanceMedium" />
- 
+
+    <digitalgarden.mecsek.formtypes.DateView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/medication"
+        android:text="- medication -"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
     <TextView
         android:id="@+id/id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/medication"
+        android:layout_below="@id/date"
         android:text="- id -" />
 
 </RelativeLayout>

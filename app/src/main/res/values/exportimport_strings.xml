@@ -30,6 +30,7 @@
     <string name="msg_error">"Task error!"</string>
     <string name="msg_error_sdcard">"SDCard is not ready!"</string>
     <string name="msg_error_database_empty">"Database is empty!"</string>
+    <string name="msg_error_database_name">"Incompatible database name!"</string>
     <string name="msg_error_database_version">"Incompatible database version!"</string>
 	<string name="msg_error_directory">"No such directory!"</string>
 	<string name="msg_error_file">"No such file!"</string>

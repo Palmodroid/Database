@@ -5,10 +5,11 @@ import digitalgarden.mecsek.database.patients.PatientsControllActivity;
 import digitalgarden.mecsek.database.patients.PatientsTable;
 import digitalgarden.mecsek.database.pills.PillsControllActivity;
 import digitalgarden.mecsek.database.pills.PillsTable;
-import digitalgarden.mecsek.formtypes.EditTextField;
+import digitalgarden.mecsek.formtypes.EditFieldDate;
+import digitalgarden.mecsek.formtypes.EditFieldText;
 import digitalgarden.mecsek.formtypes.ForeignKey;
-import digitalgarden.mecsek.scribe.Scribe;
 import digitalgarden.mecsek.generic.GenericEditFragment;
+import digitalgarden.mecsek.scribe.Scribe;
 
 import static digitalgarden.mecsek.database.library.LibraryDatabase.MEDICATIONS;
 import static digitalgarden.mecsek.database.library.LibraryDatabase.PATIENTS;
@@ -35,7 +36,10 @@ public class MedicationsEditFragment extends GenericEditFragment
 		Scribe.note("MedicationsEditFragment setupFormLayout");
 
         // EditTextField
-        EditTextField medicationNameField = addEditTextField( R.id.foreigntext_medication_name, MedicationsTable.NAME );
+        EditFieldText medicationNameField = (EditFieldText)addEditField( R.id.edittextfield_medication_name, MedicationsTable.NAME );
+
+        // EditTextField
+        EditFieldDate medicationDateField = (EditFieldDate)addEditField( R.id.editdatefield_medication_date, MedicationsTable.DATE );
 
         // ForeignKey
         ForeignKey pillKey = addForeignKey( MedicationsTable.PILL_ID,

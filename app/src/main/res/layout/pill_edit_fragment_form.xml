@@ -13,7 +13,7 @@
         android:text="@string/title_pill_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <digitalgarden.mecsek.formtypes.EditTextField
+    <digitalgarden.mecsek.formtypes.EditFieldText
         android:id="@+id/foreigntext_pill_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

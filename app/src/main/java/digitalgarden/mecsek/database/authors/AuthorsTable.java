@@ -29,7 +29,7 @@ public final class AuthorsTable extends GenericTable
     @Override
     public void defineExportImportColumns()
         {
-        addExportImportColumn( AuthorsTable.NAME );
+        exportImport().addColumnAllVersions( AuthorsTable.NAME );
         }
 
     /*

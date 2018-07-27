@@ -47,7 +47,7 @@ class AsyncTaskExport extends GenericAsyncTask
         int count = 0;
         for ( GenericTable table : allTables() )
             {
-            count += table.collateRows();
+            count += table.exportImport().collateRows();
             }
 
 		// Itt állítjuk be a progress végértékét a 2. paraméter használatával
@@ -81,7 +81,7 @@ class AsyncTaskExport extends GenericAsyncTask
             loopOfTables:
             for ( GenericTable table : allTables() )
                 {
-                while ( (data=table.getNextRow()) != null )
+                while ( (data=table.exportImport().getNextRow()) != null )
                     {
                     Scribe.note("AsyncTaskEXPORT exporting: " + data);
                     // http://stackoverflow.com/questions/5949926/what-is-the-difference-between-append-and-write-methods-of-java-io-writer
@@ -105,7 +105,7 @@ class AsyncTaskExport extends GenericAsyncTask
             // Always close the cursor
             for ( GenericTable table : allTables() )
                 {
-                table.close();
+                table.exportImport().close();
                 }
 
 			if (bufferedWriter != null) 

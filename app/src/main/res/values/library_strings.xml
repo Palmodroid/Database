@@ -46,6 +46,8 @@
     <string name="hint_patient">patient\'s name</string>
     <string name="title_medication_name">Medication:</string>
     <string name="hint_medication_name">medication\'s name</string>
+    <string name="title_medication_date">Date:</string>
+    <string name="hint_medication_date">medication\'s date</string>
 
     <string name="medications_with">"Medications with "</string>
     <string name="button_medication_list">Medic.s</string>

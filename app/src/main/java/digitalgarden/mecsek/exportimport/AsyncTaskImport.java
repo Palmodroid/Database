@@ -91,6 +91,7 @@ class AsyncTaskImport extends GenericAsyncTask
 			String row;
 			String[] records;
             boolean rowMissing;
+            int version = -1;
 
 			while ( (row=bufferedReader.readLine()) != null )
 				{
@@ -98,20 +99,31 @@ class AsyncTaskImport extends GenericAsyncTask
 
 				if (count == 0)
 					{
-					// Ez a legelső sor ellenőrzése
-					if (records.length < 2 ||
-						!records[0].equals( database().name() ) ||
-						!records[1].equals( Integer.toString(database().version() )) )
-						{
-						setReturnedMessage( R.string.msg_error_database_version );
-						Scribe.note( "[" + row + "] and database: " + database().name() + " (" + database().version() + ") does not match!");
-						break;
-						}
-					else
-						{
-						Scribe.debug( "Database: " + database().name() + " (" + database().version() + ") matches!");
-						}
-					}
+                    if ( records.length < 2 || !records[0].equals( database().name() ))
+                        {
+                        setReturnedMessage( R.string.msg_error_database_name );
+                        Scribe.note( "Database: " + database().name() + " does not match!");
+                        break;
+                        }
+
+                    try
+                        {
+                        version = Integer.parseInt(records[1]);
+                        }
+                    catch (NumberFormatException nfe) {} // Nem érdekes, version -1 lesz.
+
+                    if ( version < 0 || version > database().version() )
+                        {
+                        setReturnedMessage( R.string.msg_error_database_version );
+                        Scribe.note( "Database: " + database().version() + " does not match!");
+                        break;
+                        }
+
+                    if ( version == database().version() )
+                        Scribe.debug( "Database: " + database().name() + " (" + database().version() + ") matches!");
+                    else
+                        Scribe.debug( "Database: " + database().name() + " matches, version (" + version + ") is lower!");
+                    }
 
 				else if (records.length < 2)
 					{
@@ -126,7 +138,7 @@ class AsyncTaskImport extends GenericAsyncTask
                         {
                         if ( records[0].equals( table.name() ))
                             {
-                            table.importRow( records );
+                            table.exportImport().importRow( version, records );
                             rowMissing = false;
                             break;
                             }

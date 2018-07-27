@@ -37,7 +37,7 @@ public class DatabaseMirror
 
         for (GenericTable table : allTables())
             {
-            table.setupContext( context );
+            table.exportImport().setupContext( context );
             table.defineColumns();
             table.defineUriMatcher( uriMatcher );
             }

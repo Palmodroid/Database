@@ -25,7 +25,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import digitalgarden.mecsek.R;
-import digitalgarden.mecsek.formtypes.EditTextField;
+import digitalgarden.mecsek.formtypes.EditField;
 import digitalgarden.mecsek.formtypes.ForeignKey;
 import digitalgarden.mecsek.formtypes.ForeignTextField;
 import digitalgarden.mecsek.scribe.Scribe;
@@ -47,7 +47,7 @@ import static digitalgarden.mecsek.database.DatabaseMirror.table;
  * Adatok előemelése és a mezők kitöltése: PULL DATA
  * Adatok visszahelyezése a mezők alapján: PUSH DATA
  *
- * EdiTextField -
+ * EditField - EditFieldText vagy EditFieldDate
  *      összeköt egy EditText mezőt egy Text típusú oszloppal
  * ForeignTextField -
  *      összeköt egy TextView mezőt egy Text típusú oszloppal, ForeignKey alapján
@@ -74,11 +74,11 @@ import static digitalgarden.mecsek.database.DatabaseMirror.table;
  *
  */
 public abstract class GenericEditFragment extends Fragment
-	{
+    {
     public final static String EDITED_ITEM = "edited item";
     public final static long NEW_ITEM = -1L;
 
-    private ArrayList<EditTextField> editTextFields = new ArrayList<>();
+    private ArrayList<EditField> editFields = new ArrayList<>();
 
     private ArrayList<ForeignKey> foreignKeys = new ArrayList<>();
 
@@ -100,13 +100,13 @@ public abstract class GenericEditFragment extends Fragment
     // Az űrlap mezőinek megfelelő objektumok itt kerülnek létrehozásra, ill. összekapcsolásra az adatbázissal
     protected abstract void setupFormLayout();
 
-    public EditTextField addEditTextField( int editTextFieldId, int columnIndex )
+    public EditField addEditField(int editFieldId, int columnIndex )
         {
-        EditTextField editTextField = (EditTextField) view.findViewById( editTextFieldId );
-        editTextField.connect( this, columnIndex );
-        editTextFields.add( editTextField );
+        EditField editField = (EditField) view.findViewById( editFieldId );
+        editField.connect( this, columnIndex );
+        editFields.add(editField);
 
-        return editTextField;
+        return editField;
         }
 
     public ForeignKey addForeignKey( int foreignKeyIndex, Class<?> selectorActivity,
@@ -182,7 +182,7 @@ public abstract class GenericEditFragment extends Fragment
             return; // Még nem létező adat, nem kell kitölteni
 
         ArrayList<String> projection = new ArrayList<>();
-        for (EditTextField field : editTextFields)
+        for (EditField field : editFields)
             {
             projection.add( column( field.getFieldIndex() ));
             }
@@ -199,7 +199,7 @@ public abstract class GenericEditFragment extends Fragment
             {
             cursor.moveToFirst();
 
-            for (EditTextField field : editTextFields)
+            for (EditField field : editFields)
                 {
                 field.pullData(cursor);
                 }
@@ -220,7 +220,7 @@ public abstract class GenericEditFragment extends Fragment
 
         ContentValues values = new ContentValues();
 
-        for (EditTextField field : editTextFields)
+        for (EditField field : editFields)
             {
             field.pushData( values );
             }

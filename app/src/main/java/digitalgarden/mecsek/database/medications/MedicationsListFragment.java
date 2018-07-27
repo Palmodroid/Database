@@ -58,6 +58,7 @@ public class MedicationsListFragment extends GenericListFragment
         addField( R.id.patient, PatientsTable.NAME );
         addField( R.id.patient_dob, PatientsTable.DOB );
         addField( R.id.medication, MedicationsTable.NAME );
+        addField( R.id.date, MedicationsTable.DATE );
         addIdField();
         }
 

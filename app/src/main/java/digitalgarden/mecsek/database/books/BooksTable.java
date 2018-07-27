@@ -37,7 +37,7 @@ public final class BooksTable extends GenericTable
     @Override
     public void defineExportImportColumns()
         {
-        addExportImportColumn( BooksTable.TITLE );
-        addExportImportForeignKey( AUTHOR_ID, AUTHORS, AuthorsTable.NAME );
+        exportImport().addColumnAllVersions( BooksTable.TITLE );
+        exportImport().addForeignKeyAllVersions( AUTHOR_ID, AUTHORS, AuthorsTable.NAME );
         }
     }

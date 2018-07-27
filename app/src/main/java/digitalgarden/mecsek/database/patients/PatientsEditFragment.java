@@ -26,11 +26,11 @@ public class PatientsEditFragment extends GenericEditFragment
 		{
 		Scribe.note("PatientsEditFragment setupFormLayout");
 		
-        addEditTextField( R.id.edittext_patient_name, PatientsTable.NAME );
-        addEditTextField( R.id.edittext_patient_dob, PatientsTable.DOB );
-        addEditTextField( R.id.edittext_patient_taj, PatientsTable.TAJ );
-        addEditTextField( R.id.edittext_patient_phone, PatientsTable.PHONE );
-        addEditTextField( R.id.edittext_patient_note, PatientsTable.NOTE );
+        addEditField( R.id.edittext_patient_name, PatientsTable.NAME );
+        addEditField( R.id.edittext_patient_dob, PatientsTable.DOB );
+        addEditField( R.id.edittext_patient_taj, PatientsTable.TAJ );
+        addEditField( R.id.edittext_patient_phone, PatientsTable.PHONE );
+        addEditField( R.id.edittext_patient_note, PatientsTable.NOTE );
 		}
 
 	}

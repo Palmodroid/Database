@@ -32,18 +32,18 @@ public final class PatientsTable extends GenericTable
         PHONE = addColumn( "phone", "TEXT");
         NOTE = addColumn( "note", "TEXT");
         SEARCH = addSearchColumnFor( NAME );
+
+        addUniqueConstraint( PatientsTable.NAME, PatientsTable.DOB, PatientsTable.TAJ );
         }
 
     @Override
     public void defineExportImportColumns()
         {
-        addExportImportColumn( PatientsTable.NAME );
-        addExportImportColumn( PatientsTable.DOB );
-        addExportImportColumn( PatientsTable.TAJ );
-        addExportImportColumn( PatientsTable.PHONE );
-        addExportImportColumn( PatientsTable.NOTE );
-
-        addUniqueConstraint( PatientsTable.NAME, PatientsTable.DOB, PatientsTable.TAJ );
+        exportImport().addColumnAllVersions( PatientsTable.NAME );
+        exportImport().addColumnAllVersions( PatientsTable.DOB );
+        exportImport().addColumnAllVersions( PatientsTable.TAJ );
+        exportImport().addColumnAllVersions( PatientsTable.PHONE );
+        exportImport().addColumnAllVersions( PatientsTable.NOTE );
         }
 
     /*

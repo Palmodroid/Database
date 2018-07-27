@@ -10,24 +10,22 @@ import android.widget.EditText;
 
 import digitalgarden.mecsek.generic.GenericEditFragment;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.column;
-
 
 // Ez a mező csak annyival tud többet, hogy az értékváltozást jelzi
 // 18.06.14 - és belepakoljuk a hozzárendelt értékekekt is
-public class EditTextField extends EditText
+public abstract class EditField extends EditText
 	{
-    public EditTextField(Context context) 
+    public EditField(Context context)
     	{
         super(context);
     	}
 
-    public EditTextField(Context context, AttributeSet attrs) 
+    public EditField(Context context, AttributeSet attrs)
     	{
         super(context, attrs);
     	}
 
-    public EditTextField(Context context, AttributeSet attrs, int defStyle) 
+    public EditField(Context context, AttributeSet attrs, int defStyle)
     	{
         super(context, attrs, defStyle);
     	}
@@ -39,7 +37,19 @@ public class EditTextField extends EditText
         return fieldIndex;
         }
 
-	public void connect(final GenericEditFragment form, int fieldIndex)
+    private boolean edited = false;
+
+    // Pl. EditFieldDate automatikusan javítja a beírást focus váltásakor.
+    protected boolean isEdited()
+        {
+        return edited;
+        }
+    protected void clearEdited()
+        {
+        edited = false;
+        }
+
+    public void connect(final GenericEditFragment form, int fieldIndex)
 		{
         this.fieldIndex = fieldIndex;
 
@@ -50,7 +60,10 @@ public class EditTextField extends EditText
 	        	{
 	        	// A felhasználó csak Resumed állapotban változtat, egyébként értékadás történt!
 	        	if (form.isResumed())
-	        		form.setEdited();
+                    {
+                    edited = true;
+                    form.setEdited();
+                    }
 	        	}
 
 			@Override
@@ -67,13 +80,7 @@ public class EditTextField extends EditText
         	});
 		}
 
-    public void pullData(Cursor cursor )
-        {
-        setText(cursor.getString(cursor.getColumnIndexOrThrow( column(getFieldIndex() ))));
-        }
+    abstract public void pullData(Cursor cursor );
 
-    public void pushData(ContentValues values)
-        {
-        values.put(column( getFieldIndex()), getText().toString() );
-        }
+    abstract public void pushData(ContentValues values);
     }

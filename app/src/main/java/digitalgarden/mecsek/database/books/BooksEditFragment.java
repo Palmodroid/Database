@@ -3,7 +3,7 @@ package digitalgarden.mecsek.database.books;
 import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.database.authors.AuthorsControllActivity;
 import digitalgarden.mecsek.database.authors.AuthorsTable;
-import digitalgarden.mecsek.formtypes.EditTextField;
+import digitalgarden.mecsek.formtypes.EditField;
 import digitalgarden.mecsek.formtypes.ForeignKey;
 import digitalgarden.mecsek.generic.GenericEditFragment;
 
@@ -29,7 +29,7 @@ public class BooksEditFragment extends GenericEditFragment
 	protected void setupFormLayout()
 		{
 		// EditTextField
-        EditTextField editTextTitle = addEditTextField( R.id.edittext_title, BooksTable.TITLE );
+        EditField editTextTitle = addEditField( R.id.edittext_title, BooksTable.TITLE );
 
         // ForeignKey
         ForeignKey authorKey = addForeignKey( BooksTable.AUTHOR_ID,

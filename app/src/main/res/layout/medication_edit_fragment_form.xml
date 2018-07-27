@@ -61,10 +61,23 @@
         android:text="@string/title_medication_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <digitalgarden.mecsek.formtypes.EditTextField
-        android:id="@+id/foreigntext_medication_name"
+    <digitalgarden.mecsek.formtypes.EditFieldText
+        android:id="@+id/edittextfield_medication_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_medication_name" />
 
-</LinearLayout>		   
+    <TextView
+        android:id="@+id/title_medication_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_medication_date"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <digitalgarden.mecsek.formtypes.EditFieldDate
+        android:id="@+id/editdatefield_medication_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_medication_date" />
+
+</LinearLayout>
