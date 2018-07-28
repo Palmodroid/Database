@@ -25,7 +25,6 @@ import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
 public abstract class GenericTable
     {
-
     private int tableId;
 
     private TableExportImport tableExportImport;
@@ -47,6 +46,14 @@ public abstract class GenericTable
         }
 
     public abstract void defineExportImportColumns();
+
+
+    public static final int TYPE_KEY = 0;
+    public static final int TYPE_TEXT = 1;
+    public static final int TYPE_DATE = 2;
+
+    private static final String[] COLUMN_TYPES = {"INTEGER", "TEXT", "INTEGER"};
+
 
     public static final int COUNTID = 0x100000;
     public static final int DIRID = 0x200000;
@@ -72,28 +79,28 @@ public abstract class GenericTable
     private int searchColumnIndex = -1;
     private int searchColumnIndexFor = -1;
 
-    protected int addColumn(String columnName, String columnType, boolean unique)
+    protected int addColumn( int columnType, String columnName, boolean unique )
         {
         columnName = columnName + "_" + Integer.toString(tableId);
 
-        createColumns.add(columnName + " " + columnType + (unique ? " UNIQUE " : ""));
-        return addColumnToDatabase( columnName, name() );
+        createColumns.add(columnName + " " + COLUMN_TYPES[columnType] + (unique ? " UNIQUE " : ""));
+        return addColumnToDatabase( columnName, columnType, name() );
         }
 
-    protected int addColumn(String columnName, String columnType)
+    protected int addColumn(int columnType, String columnName )
         {
-        return addColumn( columnName, columnType, false );
+        return addColumn( columnType, columnName, false );
         }
 
-    protected int addUniqueColumn(String columnName, String columnType)
+    protected int addUniqueColumn(int columnType, String columnName )
         {
-        return addColumn( columnName, columnType, true );
+        return addColumn( columnType, columnName, true );
         }
 
     // Foreign key rész
     protected int addForeignKey(String columnName, int referenceTableIndex)
         {
-        int index = addColumn(columnName, "INTEGER");
+        int index = addColumn( TYPE_KEY, columnName);
         createForeignKeys.add(" FOREIGN KEY (" + column(index) +
                 ") REFERENCES " + table(referenceTableIndex).name() + " (" + column_id() + ") ON DELETE CASCADE ");
 
@@ -121,7 +128,7 @@ public abstract class GenericTable
         {
         if ( searchColumnIndex != -1 )
             throw new IllegalArgumentException("Search column is already defined in table " + name());
-        searchColumnIndex = addColumn("search", "TEXT");
+        searchColumnIndex = addColumn(TYPE_TEXT,  "search");
         searchColumnIndexFor = columnIndex;
         return searchColumnIndex;
         }

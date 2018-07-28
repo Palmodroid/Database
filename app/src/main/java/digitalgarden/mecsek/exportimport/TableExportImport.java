@@ -12,12 +12,16 @@ import java.util.Set;
 
 import digitalgarden.mecsek.generic.database.GenericTable;
 import digitalgarden.mecsek.scribe.Scribe;
+import digitalgarden.mecsek.utils.Longtime;
 import digitalgarden.mecsek.utils.StringUtils;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
+import static digitalgarden.mecsek.database.DatabaseMirror.columnType;
 import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.database;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
+import static digitalgarden.mecsek.generic.database.GenericTable.TYPE_DATE;
+import static digitalgarden.mecsek.generic.database.GenericTable.TYPE_TEXT;
 
 public class TableExportImport
     {
@@ -38,7 +42,7 @@ public class TableExportImport
 
     private class ExportImportVersion
         {
-        private ArrayList<String> exportImportColumns = new ArrayList<>();
+        private ArrayList<Integer> exportImportColumns = new ArrayList<>();
         private ArrayList<ExportImportForeignKey> exportImportForeignKeys = new ArrayList<>();
         }
 
@@ -70,10 +74,10 @@ public class TableExportImport
 
     public void addColumn(int version, int columnIndex)
         {
-        exportImportVersions[version].exportImportColumns.add(column(columnIndex));
+        exportImportVersions[version].exportImportColumns.add( columnIndex );
         }
 
-    public void addColumnFromVersion(int firstVersion, int columnIndex)
+    public void addColumnFromVersion(int firstVersion,  int columnType, int columnIndex)
         {
         addColumnSomeVersions(firstVersion, database().version(), columnIndex);
         }
@@ -90,7 +94,6 @@ public class TableExportImport
         {
         addColumnSomeVersions(0, database().version(), columnIndex);
         }
-
 
 
     public void addForeignKey(int version, int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
@@ -164,9 +167,19 @@ public class TableExportImport
                 }
             }
 
-        for ( String column : version().exportImportColumns )
+        for ( Integer exportImportColumn : version().exportImportColumns )
             {
-            data.add(cursor.getString( cursor.getColumnIndexOrThrow( column )));
+            if ( columnType(exportImportColumn) == TYPE_TEXT )
+                {
+                data.add(cursor.getString(cursor.getColumnIndexOrThrow( column(exportImportColumn))));
+                }
+            else if ( columnType(exportImportColumn) == TYPE_DATE )
+                {
+                Longtime longtime = new Longtime();
+                longtime.set(cursor.getLong(cursor.getColumnIndexOrThrow( column(exportImportColumn))));
+                data.add( longtime.toString(false));
+                // Ha hibás, akkor hol lesz jelzés??
+                }
             }
         return data.toArray( new String [0]);
         }
@@ -188,9 +201,9 @@ public class TableExportImport
                 }
             }
 
-        for ( String column : version().exportImportColumns )
+        for ( Integer columnIndex : version().exportImportColumns )
             {
-            projection.add( column );
+            projection.add( column(columnIndex) );
             }
 
         cursor = getContentResolver().query( table.contentUri(),
@@ -325,11 +338,23 @@ public class TableExportImport
                 values.put( column(foreignKey.foreignKeyIndex), row );
             }
 
-        for (String column : exportImportVersions[version].exportImportColumns)
+        for (Integer columnIndex : exportImportVersions[version].exportImportColumns)
             {
             if (counter == records.length)
                 return;
-            values.put( column, StringUtils.revertFromEscaped(records[counter++] ));
+
+            if ( columnType(columnIndex) == TYPE_TEXT )
+                {
+                values.put(column(columnIndex), StringUtils.revertFromEscaped(records[counter]));
+                }
+            else if ( columnType(columnIndex) == TYPE_DATE )
+                {
+                Longtime longtime = new Longtime();
+                longtime.setDate( records[counter] );
+                values.put(column(columnIndex), longtime.get() );
+                }
+
+            counter ++;
             }
 
         getContentResolver()

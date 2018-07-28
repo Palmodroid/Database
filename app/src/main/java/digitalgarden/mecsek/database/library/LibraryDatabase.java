@@ -2,6 +2,7 @@ package digitalgarden.mecsek.database.library;
 
 import digitalgarden.mecsek.database.authors.AuthorsTable;
 import digitalgarden.mecsek.database.books.BooksTable;
+import digitalgarden.mecsek.database.calendar.CalendarTable;
 import digitalgarden.mecsek.database.medications.MedicationsTable;
 import digitalgarden.mecsek.database.patients.PatientsTable;
 import digitalgarden.mecsek.database.pills.PillsTable;
@@ -18,7 +19,7 @@ public class LibraryDatabase extends GenericDatabase
     @Override
     public int version()
         {
-        return 7;
+        return 9;
         }
 
     @Override
@@ -32,6 +33,7 @@ public class LibraryDatabase extends GenericDatabase
     public static int MEDICATIONS;
     public static int PILLS;
     public static int PATIENTS;
+    public static int CALENDAR;
 
     // Ahhoz, hogy a drop table működjön, előbb kell kitörölni a másokra hivatkozó táblákat!
 
@@ -45,5 +47,6 @@ public class LibraryDatabase extends GenericDatabase
         PATIENTS = addTable( new PatientsTable(4) );
         PILLS = addTable( new PillsTable(3) );
         MEDICATIONS = addTable( new MedicationsTable(5) );
+        CALENDAR = addTable( new CalendarTable(6) );
         }
     }

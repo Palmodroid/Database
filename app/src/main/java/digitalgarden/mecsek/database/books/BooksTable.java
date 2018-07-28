@@ -28,8 +28,8 @@ public final class BooksTable extends GenericTable
     @Override
     public void defineColumns()
         {
-        TITLE = addColumn("title", "TEXT");
-        NOTE = addColumn("note", "TEXT");
+        TITLE = addColumn( TYPE_TEXT, "title" );
+        NOTE = addColumn( TYPE_TEXT, "note" );
         SEARCH = addSearchColumnFor(TITLE);
         AUTHOR_ID = addForeignKey("author_id", AUTHORS);
         }

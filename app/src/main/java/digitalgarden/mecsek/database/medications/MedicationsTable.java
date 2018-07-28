@@ -29,8 +29,8 @@ public final class MedicationsTable extends GenericTable
     @Override
     public void defineColumns()
         {
-        NAME = addColumn( "name", "TEXT" );
-        DATE = addColumn( "date", "INTEGER" );
+        NAME = addColumn( TYPE_TEXT, "name" );
+        DATE = addColumn( TYPE_TEXT, "date" );
         PILL_ID = addForeignKey( "pill_id", PILLS );
         PATIENT_ID = addForeignKey( "patient_id", PATIENTS );
         SEARCH = addSearchColumnFor( NAME );
@@ -43,6 +43,7 @@ public final class MedicationsTable extends GenericTable
     public void defineExportImportColumns()
         {
         exportImport().addColumnAllVersions( MedicationsTable.NAME );
+        exportImport().addColumnAllVersions( MedicationsTable.DATE );
         exportImport().addForeignKeyAllVersions( PILL_ID, PILLS, PillsTable.NAME );
         exportImport().addForeignKeyAllVersions( PATIENT_ID, PATIENTS, PatientsTable.NAME, PatientsTable.DOB, PatientsTable.TAJ );
         }

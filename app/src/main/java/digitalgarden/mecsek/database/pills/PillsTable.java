@@ -22,7 +22,7 @@ public final class PillsTable extends GenericTable
     @Override
     public void defineColumns()
         {
-        NAME = addColumn("name", "TEXT");
+        NAME = addColumn( TYPE_TEXT, "name" );
         SEARCH = addSearchColumnFor( NAME );
         }
 

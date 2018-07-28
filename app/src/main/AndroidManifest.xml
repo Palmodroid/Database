@@ -58,6 +58,12 @@
         </activity>
 
         <activity
+            android:theme="@style/AppTheme.NoActionBar"
+            android:name="digitalgarden.mecsek.database.calendar.CalendarControllActivity"
+            android:label="@string/calendar_title" >
+        </activity>
+
+        <activity
             android:name="digitalgarden.mecsek.selectfile.SelectFileActivity"
             android:label="@string/app_name" >
         </activity>

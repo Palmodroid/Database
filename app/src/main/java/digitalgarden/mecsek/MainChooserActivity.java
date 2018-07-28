@@ -13,6 +13,7 @@ import digitalgarden.mecsek.MainChooserDialogFragment.Type;
 import digitalgarden.mecsek.database.DatabaseContentProvider;
 import digitalgarden.mecsek.database.authors.AuthorsControllActivity;
 import digitalgarden.mecsek.database.books.BooksControllActivity;
+import digitalgarden.mecsek.database.calendar.CalendarControllActivity;
 import digitalgarden.mecsek.database.medications.MedicationsControllActivity;
 import digitalgarden.mecsek.database.patients.PatientsControllActivity;
 import digitalgarden.mecsek.database.pills.PillsControllActivity;
@@ -119,6 +120,19 @@ public class MainChooserActivity extends FragmentActivity implements PermissionR
                     Intent i = new Intent();
 
                     i.setClass(MainChooserActivity.this, MedicationsControllActivity.class);
+                    startActivity(i);
+                    }
+                });
+
+            findViewById(R.id.button_calendar_table).setOnClickListener(new OnClickListener()
+                {
+                public void onClick(View view)
+                    {
+                    Scribe.title("MAINCHOOSER: Calendar table called");
+
+                    Intent i = new Intent();
+
+                    i.setClass(MainChooserActivity.this, CalendarControllActivity.class);
                     startActivity(i);
                     }
                 });

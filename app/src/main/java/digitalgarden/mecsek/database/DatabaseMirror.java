@@ -95,19 +95,21 @@ public class DatabaseMirror
         {
         private String tableName;
         private String columnName;
+        private int columnType;
 
-        Column(String columnName, String tableName)
+        Column(String columnName, int columnType, String tableName)
             {
             this.columnName = columnName;
+            this.columnType = columnType;
             this.tableName = tableName;
             }
         }
 
     private static ArrayList<Column> columns = new ArrayList<>();
 
-    public static int addColumnToDatabase(String ColumnName, String tableName )
+    public static int addColumnToDatabase(String columnName, int columnType, String tableName )
         {
-        columns.add( new Column( ColumnName, tableName ));
+        columns.add( new Column( columnName, columnType, tableName ));
         return columns.size() - 1;
         }
 
@@ -129,5 +131,10 @@ public class DatabaseMirror
     public static String columnFull_id(int tableIndex )
         {
         return table( tableIndex ).name() + "." + _ID;
+        }
+
+    public static int columnType(int columnIndex )
+        {
+        return columns.get(columnIndex).columnType;
         }
     }

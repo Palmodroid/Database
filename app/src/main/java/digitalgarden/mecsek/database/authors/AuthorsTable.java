@@ -22,7 +22,7 @@ public final class AuthorsTable extends GenericTable
     @Override
     public void defineColumns()
         {
-        NAME = addUniqueColumn("name", "TEXT");
+        NAME = addUniqueColumn( TYPE_TEXT, "name" );
         SEARCH = addSearchColumnFor(NAME);
         }
 

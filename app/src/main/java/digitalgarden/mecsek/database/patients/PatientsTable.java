@@ -26,11 +26,11 @@ public final class PatientsTable extends GenericTable
     @Override
     public void defineColumns()
         {
-        NAME = addColumn( "name", "TEXT");
-        DOB = addColumn( "dob", "TEXT");
-        TAJ = addColumn( "taj", "TEXT");
-        PHONE = addColumn( "phone", "TEXT");
-        NOTE = addColumn( "note", "TEXT");
+        NAME = addColumn( TYPE_TEXT, "name" );
+        DOB = addColumn( TYPE_TEXT, "dob" );
+        TAJ = addColumn( TYPE_TEXT, "taj" );
+        PHONE = addColumn( TYPE_TEXT, "phone" );
+        NOTE = addColumn( TYPE_TEXT, "note" );
         SEARCH = addSearchColumnFor( NAME );
 
         addUniqueConstraint( PatientsTable.NAME, PatientsTable.DOB, PatientsTable.TAJ );
