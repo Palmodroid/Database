@@ -1,19 +1,19 @@
 package digitalgarden.mecsek.formtypes;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
+import digitalgarden.mecsek.generic.Connection;
 import digitalgarden.mecsek.generic.GenericEditFragment;
 
 
 // Ez a mező csak annyival tud többet, hogy az értékváltozást jelzi
 // 18.06.14 - és belepakoljuk a hozzárendelt értékekekt is
-public abstract class EditField extends EditText
+public abstract class EditField extends EditText implements Connection.Connectable
 	{
     public EditField(Context context)
     	{
@@ -30,11 +30,11 @@ public abstract class EditField extends EditText
         super(context, attrs, defStyle);
     	}
 
-    private int fieldIndex;
+    private int columnIndex;
 
-    public int getFieldIndex()
+    public int getColumnIndex()
         {
-        return fieldIndex;
+        return columnIndex;
         }
 
     private boolean edited = false;
@@ -49,9 +49,9 @@ public abstract class EditField extends EditText
         edited = false;
         }
 
-    public void connect(final GenericEditFragment form, int fieldIndex)
+    public void connect(final GenericEditFragment form, int columnIndex)
 		{
-        this.fieldIndex = fieldIndex;
+        this.columnIndex = columnIndex;
 
 		addTextChangedListener(new TextWatcher() 
         	{
@@ -80,7 +80,21 @@ public abstract class EditField extends EditText
         	});
 		}
 
-    abstract public void pullData(Cursor cursor );
+    @Override
+    public void saveData(Bundle data)
+        {
+        // Nincs rá szükség
+        }
 
-    abstract public void pushData(ContentValues values);
+    @Override
+    public void retrieveData(Bundle data)
+        {
+        // Nincs rá szükség
+        }
+
+    @Override
+    public void pushSource( int tableIndex, long rowIndex )
+        {
+        // No source for edit fields
+        }
     }

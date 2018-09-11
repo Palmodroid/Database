@@ -110,6 +110,12 @@ public abstract class GenericTable
         return index;
         }
 
+    protected int addExternKey(String columnName, int referenceTableIndex)
+        {
+        // Ez ugyanaz, mint a Foreign Key, csak nem a hivatkozás sorszáma, hanem maga a hivatkozott érték változik
+        return addForeignKey( columnName, referenceTableIndex );
+        }
+
     protected void addUniqueConstraint(int... columnIndices)
         {
         if ( !createUniqueConstraint.isEmpty() )

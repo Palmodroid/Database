@@ -32,12 +32,11 @@ public class BooksEditFragment extends GenericEditFragment
         EditField editTextTitle = addEditField( R.id.edittext_title, BooksTable.TITLE );
 
         // ForeignKey
-        ForeignKey authorKey = addForeignKey( BooksTable.AUTHOR_ID,
+        ForeignKey authorKey = addForeignKey( BooksTable.AUTHOR_ID, AUTHORS,
                 AuthorsControllActivity.class,
         		getActivity().getString( R.string.select_author ),
         		editTextTitle );
-        
-        // ForeignTextField
-        addForeignTextField( authorKey, R.id.edittext_author, AUTHORS, AuthorsTable.NAME );
+
+        authorKey.addEditField( R.id.edittext_author, AuthorsTable.NAME );
 		}
     }

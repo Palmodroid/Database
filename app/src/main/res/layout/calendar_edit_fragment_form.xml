@@ -32,4 +32,16 @@
         android:layout_height="wrap_content"
         android:hint="@string/hint_calendar_note" />
 
+    <digitalgarden.mecsek.formtypes.EditFieldText
+        android:id="@+id/calendar_source_table"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <digitalgarden.mecsek.formtypes.EditFieldText
+        android:id="@+id/calendar_source_row"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
 </LinearLayout>

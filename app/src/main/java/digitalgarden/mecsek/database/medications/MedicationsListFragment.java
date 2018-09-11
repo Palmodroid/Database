@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.os.Bundle;
 
 import digitalgarden.mecsek.R;
+import digitalgarden.mecsek.database.calendar.CalendarTable;
 import digitalgarden.mecsek.database.patients.PatientsTable;
 import digitalgarden.mecsek.database.pills.PillsTable;
 import digitalgarden.mecsek.generic.GenericListFragment;
@@ -59,6 +60,7 @@ public class MedicationsListFragment extends GenericListFragment
         addField( R.id.patient_dob, PatientsTable.DOB );
         addField( R.id.medication, MedicationsTable.NAME );
         addField( R.id.date, MedicationsTable.DATE );
+        addField( R.id.note, CalendarTable.NOTE);
         addIdField();
         }
 

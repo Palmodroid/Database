@@ -1,9 +1,9 @@
 package digitalgarden.mecsek.database.calendar;
 
 
-import digitalgarden.mecsek.generic.database.GenericTable;
+import digitalgarden.mecsek.generic.database.GenericTableWithSource;
 
-public final class CalendarTable extends GenericTable
+public final class CalendarTable extends GenericTableWithSource
     {
     public CalendarTable(int tableId )
         {
@@ -24,6 +24,7 @@ public final class CalendarTable extends GenericTable
         {
         DATE = addColumn( TYPE_DATE, "date" );
         NOTE = addColumn( TYPE_TEXT, "note" );
+        addSourceColumns();
         }
 
     @Override

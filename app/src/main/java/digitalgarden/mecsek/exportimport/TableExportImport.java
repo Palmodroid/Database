@@ -137,6 +137,30 @@ public class TableExportImport
             }
         }
 
+
+    public void addExternKey(int version, int externKeyIndex, int externTableIndex, int... externColumnIndices)
+        {
+        addForeignKey(version, externKeyIndex, externTableIndex, externColumnIndices);
+        }
+
+    public void addExternKeySomeVersions(int firstVersion, int lastVersion,
+                                          int externKeyIndex, int externTableIndex, int... externColumnIndices)
+        {
+        addExternKeySomeVersions(firstVersion, lastVersion, externKeyIndex, externTableIndex, externColumnIndices);
+        }
+
+    public void addExternKeyFromVersion(int firstVersion,
+                                         int externKeyIndex, int externTableIndex, int... externColumnIndices)
+        {
+        addForeignKeyFromVersion( firstVersion, externKeyIndex, externTableIndex, externColumnIndices );
+        }
+
+    public void addExternKeyAllVersions(int externKeyIndex, int externTableIndex, int... externColumnIndices)
+        {
+        addForeignKeyAllVersions(externKeyIndex, externTableIndex, externColumnIndices);
+        }
+
+
     private ExportImportForeignKey createForeignKey(int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
         {
         ExportImportForeignKey exportImportForeignKey = new ExportImportForeignKey();

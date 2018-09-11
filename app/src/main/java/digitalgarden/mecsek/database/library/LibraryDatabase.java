@@ -19,7 +19,7 @@ public class LibraryDatabase extends GenericDatabase
     @Override
     public int version()
         {
-        return 9;
+        return 12;
         }
 
     @Override
@@ -30,13 +30,14 @@ public class LibraryDatabase extends GenericDatabase
 
     public static int AUTHORS;
     public static int BOOKS;
-    public static int MEDICATIONS;
+
+    public static int CALENDAR;
     public static int PILLS;
     public static int PATIENTS;
-    public static int CALENDAR;
+    public static int MEDICATIONS;
+
 
     // Ahhoz, hogy a drop table működjön, előbb kell kitörölni a másokra hivatkozó táblákat!
-
     // Viszont az export igényli, hogy előbb a hivatkozott táblák exportálódjanak
 
     @Override
@@ -44,9 +45,10 @@ public class LibraryDatabase extends GenericDatabase
         {
         AUTHORS = addTable( new AuthorsTable(1) );
         BOOKS = addTable( new BooksTable(2) );
-        PATIENTS = addTable( new PatientsTable(4) );
-        PILLS = addTable( new PillsTable(3) );
-        MEDICATIONS = addTable( new MedicationsTable(5) );
-        CALENDAR = addTable( new CalendarTable(6) );
+
+        CALENDAR = addTable( new CalendarTable(3) );
+        PILLS = addTable( new PillsTable(4) );
+        PATIENTS = addTable( new PatientsTable(5) );
+        MEDICATIONS = addTable( new MedicationsTable(6) );
         }
     }
