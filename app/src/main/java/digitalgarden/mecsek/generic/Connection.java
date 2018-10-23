@@ -13,7 +13,6 @@ import java.util.List;
 
 import digitalgarden.mecsek.scribe.Scribe;
 
-import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
 /**
@@ -30,7 +29,7 @@ public class Connection
     {
     public interface Connectable
         {
-        int getColumnIndex();
+        void addColumn( List<String> columns );
         void pullData( Cursor cursor );
         void pushData( ContentValues values );
         void pushSource( int tableIndex, long rowIndex );
@@ -67,10 +66,10 @@ public class Connection
             return;
 
         // A projection-t nem kell előre összerakni, mert a lekérés csak egyszer történik meg
-        ArrayList<String> projection = new ArrayList<>();
+        List<String> projection = new ArrayList<>();
         for ( Connectable connectable : connectables )
             {
-            projection.add( column( connectable.getColumnIndex() ));
+            connectable.addColumn( projection );
             }
 
         //https://stackoverflow.com/questions/4042434/converting-arrayliststring-to-string-in-java

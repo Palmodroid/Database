@@ -5,11 +5,6 @@ import digitalgarden.mecsek.generic.database.GenericTable;
 
 public final class PillsTable extends GenericTable
     {
-    public PillsTable( int tableId )
-        {
-        super( tableId );
-        }
-
     @Override
     public String name()
         {

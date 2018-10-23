@@ -11,11 +11,6 @@ import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
 
 public final class MedicationsTable extends GenericTable
     {
-    public MedicationsTable( int tableId )
-        {
-        super( tableId );
-        }
-
     @Override
     public String name()
         {
@@ -53,5 +48,10 @@ public final class MedicationsTable extends GenericTable
         exportImport().addExternKeyAllVersions( CALENDAR_ID, CALENDAR, CalendarTable.NOTE);
         }
 
+    @Override
+    public Class getControllActivity()
+        {
+        return MedicationsControllActivity.class;
+        }
     }
 

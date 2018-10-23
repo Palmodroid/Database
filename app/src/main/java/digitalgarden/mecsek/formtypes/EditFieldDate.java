@@ -69,7 +69,7 @@ public class EditFieldDate extends EditField implements View.OnFocusChangeListen
 
     public void pullData(Cursor cursor )
         {
-        longtime.set(cursor.getLong(cursor.getColumnIndexOrThrow( column(getColumnIndex() ))));
+        longtime.set(cursor.getLong(cursor.getColumnIndexOrThrow( column( columnIndex ))));
         fillText( true );
         }
 
@@ -77,6 +77,6 @@ public class EditFieldDate extends EditField implements View.OnFocusChangeListen
         {
         if ( isEdited())
             checkData(); // Elvileg felesleges, mert focusváltás nélkül nem lehet ide jutni
-        values.put(column( getColumnIndex()), longtime.get() );
+        values.put(column( columnIndex ), longtime.get() );
         }
     }

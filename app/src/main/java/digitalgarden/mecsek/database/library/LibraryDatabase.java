@@ -19,7 +19,7 @@ public class LibraryDatabase extends GenericDatabase
     @Override
     public int version()
         {
-        return 12;
+        return 1;
         }
 
     @Override
@@ -43,12 +43,12 @@ public class LibraryDatabase extends GenericDatabase
     @Override
     public void defineTables()
         {
-        AUTHORS = addTable( new AuthorsTable(1) );
-        BOOKS = addTable( new BooksTable(2) );
+        AUTHORS = addTable( new AuthorsTable() );
+        BOOKS = addTable( new BooksTable() );
 
-        CALENDAR = addTable( new CalendarTable(3) );
-        PILLS = addTable( new PillsTable(4) );
-        PATIENTS = addTable( new PatientsTable(5) );
-        MEDICATIONS = addTable( new MedicationsTable(6) );
+        CALENDAR = addTable( new CalendarTable() );
+        PILLS = addTable( new PillsTable() );
+        PATIENTS = addTable( new PatientsTable() );
+        MEDICATIONS = addTable( new MedicationsTable() );
         }
     }

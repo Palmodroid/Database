@@ -14,7 +14,7 @@ import static digitalgarden.mecsek.database.library.LibraryDatabase.BOOKS;
 public class BooksEditFragment extends GenericEditFragment
 	{
     @Override
-    protected int defineTableIndex()
+    public int defineTableIndex()
         {
         return BOOKS;
         }

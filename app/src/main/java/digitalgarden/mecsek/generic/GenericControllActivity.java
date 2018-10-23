@@ -34,12 +34,21 @@ import digitalgarden.mecsek.utils.Keyboard;
  *
  *  Beállítható Extrák:
  *  	TITLE - a teljes Activity címe
- *  
+ *
+ *  SELECTED_ITEM - kijelöl egy már kiválasztott sort a listában. ListFragment nyílik meg
+ *
+ *  EDITED_ITEM - a ListFragment-ben kijelölt elemmel megnyílik az EditFragment
+ *
+ *  Ha ezzel hívjuk meg az Activity-t, akkor rögtön erre az elemre ugrik.
+ *
  *  Visszatéréskor:
  *  	ITEM_SELECTED - a kiválasztott elem id-je
+ *
+ *
  */
 
 public abstract class GenericControllActivity extends AppCompatActivity
+        implements GenericListFragment.OnListReturnedListener, GenericEditFragment.OnFinishedListener
     {
     public final static String TITLE = "title";
 
@@ -191,10 +200,16 @@ public abstract class GenericControllActivity extends AppCompatActivity
         // Ha nincs EDIT, akkor a hozzá tartozó Frame-t is kikapcsoljuk.
         // Ha van EDIT ÉS PORTRAIT-ban vagyunk, akkor az átfedő LIST Frame-jét kapcsoljuk ki
 
+        // Újítás!
+        // Ha EditFrag nem létezik
+
         Fragment listFrag = fragmentManager.findFragmentByTag("LIST");
         if (listFrag == null)
             {
             listFrag = createListFragment();
+
+            // !!!!!!!!!!!!!!! EZ VAJON IDE KELL ???????????????
+            ((GenericListFragment)listFrag).rollToSelectedItem();
 
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.list_frame, listFrag, "LIST");
@@ -208,19 +223,53 @@ public abstract class GenericControllActivity extends AppCompatActivity
         Fragment editFrag = fragmentManager.findFragmentById(R.id.edit_frame);
         if (editFrag == null)
             {
-            findViewById(R.id.edit_frame).setVisibility(View.GONE);
-            Scribe.note("EDIT Fragment not found, EDIT Frame GONE");
+            long editedItem = getIntent().getLongExtra(GenericEditFragment.EDITED_ITEM,-1L);
+
+            // Van EDITÁLANDÓ értékünk - EZ ONITEMEDITINGBŐL JÖTT NEM LEHET KÉT ILYEN !!!!!!!!!!!!!!!!!!!!!!!!
+            if ( editedItem >= 0L )
+                {
+                editFrag = createEditFragment();
+                Bundle args = new Bundle();
+                args.putLong(GenericEditFragment.EDITED_ITEM, editedItem);
+                editFrag.setArguments(args);
+
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                // http://stackoverflow.com/questions/4817900/android-fragments-and-animation és
+                // http://daniel-codes.blogspot.hu/2012/06/fragment-transactions-reference.html
+                // fragmentTransaction.setCustomAnimations(android.R.anim.slide_in_left , android.R.anim.slide_out_right, android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+                fragmentTransaction.add(R.id.edit_frame, editFrag, "EDIT");
+                fragmentTransaction.addToBackStack("LIBDB");
+                fragmentTransaction.commit();
+
+                Scribe.note("List item selected: New EDIT was created, added");
+
+                findViewById(R.id.edit_frame).setVisibility(View.VISIBLE);
+                Scribe.note("EDIT Frame VISIBLE");
+// ListFragment van, de elrejtjük
+//                if (findViewById(R.id.landscape) == null)
+//                    {
+                    findViewById(R.id.list_frame).setVisibility(View.GONE);
+//                    Scribe.note("PORTRAIT MODE: LIST Frame GONE");
+//                    }
+                }
+            // Nincs editálandó elem
+            else
+                {
+                findViewById(R.id.edit_frame).setVisibility(View.GONE);
+                Scribe.note("EDIT Fragment not found, EDIT Frame GONE");
+                }
             }
-        else if (findViewById(R.id.landscape) == null)
+        else if (findViewById(R.id.landscape) == null) // editFrag létezik!
             {
             findViewById(R.id.list_frame).setVisibility(View.GONE);
             Scribe.note("EDIT Fragment found in PORTRAIT mode, LIST Frame GONE");
             }
-        else
+        else // editFrag létezik, és landscape-ben vagyunk.
             {
             Scribe.note("EDIT Fragment found in LANDSCAPE mode, LIST and EDIT visible");
             }
         }
+
 
     // Listfragment jelzett vissza - elemet választottunk ki
     public void onItemSelected(long id)
@@ -311,6 +360,14 @@ public abstract class GenericControllActivity extends AppCompatActivity
                 finish();
                 return;
                 }
+            }
+
+        // Csak EDIT-ért jöttünk, vszínű source-ból
+        else if (getIntent().getLongExtra(GenericEditFragment.EDITED_ITEM, -1L) >= 0L)
+            {
+            // Nem kell semmit tenni, mert a source-t nem változtatjuk, legfeljebb itt UPDATE-eltünk egyetlen elemet
+            finish();
+            return;
             }
 
         FragmentManager fragmentManager = getSupportFragmentManager();

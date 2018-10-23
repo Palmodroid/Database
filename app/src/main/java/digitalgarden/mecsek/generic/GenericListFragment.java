@@ -86,7 +86,7 @@ public abstract class GenericListFragment extends ListFragment
 	 */
 
 	// Ha értéke nem SELECT_DISABLED, akkor:
-	// - a listát megjelenésekor erre az elemre pörgeti (nincs implementálva!)
+	// - a listát megjelenésekor erre az elemre pörgeti (rollToSelectedItem())
 	// - rövid érintésre a kiválasztott elemet nem editálja, hanem visszaadja
 	public static final String SELECTED_ITEM = "selected item";
 	public static final long SELECTED_NONE = -1L;

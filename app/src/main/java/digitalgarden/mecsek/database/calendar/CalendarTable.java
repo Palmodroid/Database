@@ -1,15 +1,10 @@
 package digitalgarden.mecsek.database.calendar;
 
 
-import digitalgarden.mecsek.generic.database.GenericTableWithSource;
+import digitalgarden.mecsek.generic.database.GenericTable;
 
-public final class CalendarTable extends GenericTableWithSource
+public final class CalendarTable extends GenericTable
     {
-    public CalendarTable(int tableId )
-        {
-        super( tableId );
-        }
-
     @Override
     public String name()
         {

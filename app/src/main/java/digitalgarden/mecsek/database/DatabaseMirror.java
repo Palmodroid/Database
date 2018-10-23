@@ -74,8 +74,12 @@ public class DatabaseMirror
 
     public static int addTableToDatabase(GenericTable table )
         {
+        int index = tables.size();
+
         tables.add(table);
-        return tables.size()-1;
+        table.setId( index );
+
+        return index;
         }
 
     public static GenericTable table( int index )

@@ -9,7 +9,6 @@ import digitalgarden.mecsek.generic.GenericEditFragment;
 import digitalgarden.mecsek.generic.GenericListFragment;
 
 public class PatientsControllActivity extends GenericControllActivity
-	implements PatientsListFragment.OnListReturnedListener, PatientsEditFragment.OnFinishedListener
 	{
 
 	@Override

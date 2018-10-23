@@ -12,7 +12,6 @@ import digitalgarden.mecsek.generic.GenericListFragment;
 
 
 public class MedicationsControllActivity extends GenericControllActivity
-	implements MedicationsListFragment.OnListReturnedListener, MedicationsEditFragment.OnFinishedListener
 	{
 
 	@Override

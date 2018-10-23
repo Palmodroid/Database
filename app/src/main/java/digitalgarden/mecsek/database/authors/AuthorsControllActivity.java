@@ -10,7 +10,6 @@ import digitalgarden.mecsek.generic.GenericEditFragment;
 import digitalgarden.mecsek.generic.GenericListFragment;
 
 public class AuthorsControllActivity extends GenericControllActivity
-	implements AuthorsListFragment.OnListReturnedListener, AuthorsEditFragment.OnFinishedListener
 	{
 
 	@Override

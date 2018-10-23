@@ -9,11 +9,6 @@ import static digitalgarden.mecsek.database.library.LibraryDatabase.AUTHORS;
 // http://martin.cubeactive.com/android-using-joins-with-a-provider-sqlite/
 public final class BooksTable extends GenericTable
     {
-    public BooksTable( int tableId )
-        {
-        super( tableId );
-        }
-
     @Override
     public String name()
         {

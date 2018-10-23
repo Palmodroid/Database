@@ -24,6 +24,7 @@ import digitalgarden.mecsek.R;
 import digitalgarden.mecsek.formtypes.EditField;
 import digitalgarden.mecsek.formtypes.ExternKey;
 import digitalgarden.mecsek.formtypes.ForeignKey;
+import digitalgarden.mecsek.formtypes.SourceFieldButton;
 import digitalgarden.mecsek.scribe.Scribe;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
@@ -128,7 +129,7 @@ public abstract class GenericEditFragment extends Fragment
     /**
      * @return index of the table
      */
-    protected abstract int defineTableIndex();
+    public abstract int defineTableIndex();
 
     // Leszármazottak által biztosított metódusok
     // A beépítésre kerülő űrlap azonosítóját adja vissza
@@ -175,6 +176,14 @@ public abstract class GenericEditFragment extends Fragment
         return externKey;
         }
 
+    public SourceFieldButton addSourceField( int sourceFieldId )
+        {
+        SourceFieldButton sourceField = (SourceFieldButton) view.findViewById( sourceFieldId );
+        sourceField.connect( this );
+        connection.add( sourceField );
+
+        return sourceField;
+        }
 
     // Az űrlapot defineFormLayout() alapján illeszti be
     // Az űrlap mezőkkel történő összekapcsolását setFormLayout() végzi el. (Ezt megelőzően codeGenerator-t nullázuk!)
@@ -390,6 +399,7 @@ public abstract class GenericEditFragment extends Fragment
             key.checkReturningSelector( requestCode, selectedId );
             }
         }
+
 
 	public void setEdited()
 		{

@@ -8,6 +8,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.List;
+
 import digitalgarden.mecsek.generic.Connection;
 import digitalgarden.mecsek.generic.GenericControllActivity;
 import digitalgarden.mecsek.generic.GenericEditFragment;
@@ -62,10 +64,11 @@ public class ForeignKey implements Connection.Connectable
         }
 
     @Override
-    public int getColumnIndex()
+    public void addColumn( List<String> columns )
         {
-        return columnIndex;
+        columns.add( column(columnIndex) );
         }
+
 
     public EditField addEditField(int editFieldId, int columnIndex )
         {

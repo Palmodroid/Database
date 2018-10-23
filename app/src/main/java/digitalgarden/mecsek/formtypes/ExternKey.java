@@ -6,9 +6,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import java.util.List;
+
 import digitalgarden.mecsek.generic.Connection;
 import digitalgarden.mecsek.generic.GenericEditFragment;
-import digitalgarden.mecsek.generic.database.GenericTableWithSource;
 
 import static digitalgarden.mecsek.database.DatabaseMirror.column;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
@@ -42,10 +43,11 @@ public class ExternKey implements Connection.Connectable
 
 
     @Override
-    public int getColumnIndex()
+    public void addColumn( List<String> columns )
         {
-        return columnIndex;
+        columns.add( column(columnIndex) );
         }
+
 
 
     public EditField addEditField(int editFieldId, int columnIndex )
@@ -104,15 +106,15 @@ public class ExternKey implements Connection.Connectable
     @Override
     public void pushSource( int sourceTableIndex, long sourceRowIndex )
         {
-        if (externKeyValue >= 0L && table( tableIndex ) instanceof GenericTableWithSource )
+        if (externKeyValue >= 0L && table( tableIndex ).hasSourceColumns())
             {
             ContentValues values = new ContentValues();
 
             values.put(
-                    column( ((GenericTableWithSource)table(tableIndex)).SOURCE_TABLE),
+                    column( table(tableIndex).SOURCE_TABLE),
                     (long) (table(sourceTableIndex).id()));
             values.put(
-                    column( ((GenericTableWithSource)table(tableIndex)).SOURCE_ROW),
+                    column( table(tableIndex).SOURCE_ROW),
                     sourceRowIndex);
 
             try

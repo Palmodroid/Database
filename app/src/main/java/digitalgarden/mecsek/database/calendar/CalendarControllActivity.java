@@ -10,7 +10,6 @@ import digitalgarden.mecsek.generic.GenericEditFragment;
 import digitalgarden.mecsek.generic.GenericListFragment;
 
 public class CalendarControllActivity extends GenericControllActivity
-	implements CalendarListFragment.OnListReturnedListener, CalendarEditFragment.OnFinishedListener
 	{
 	@Override
 	protected GenericEditFragment createEditFragment()

@@ -29,10 +29,16 @@ public abstract class GenericTable
 
     private TableExportImport tableExportImport;
 
-    public GenericTable( int table_id )
+    public GenericTable( )
         {
-        this.tableId = table_id;
         this.tableExportImport = new TableExportImport( this );
+        }
+
+    // Az Id megegyezik a tábla list sorszámával, de ezt csak az elhelyezés után tudjuk elkérni.
+    // Igazából itt lehetne egy ellenőrzés, hogy ne lehessen többször értéket adni.
+    public void setId( int tableId )
+        {
+        this.tableId = tableId;
         }
 
     public int id()
@@ -46,6 +52,28 @@ public abstract class GenericTable
         }
 
     public abstract void defineExportImportColumns();
+
+    private static final String SOURCE_TABLE_COLUMN_NAME = "srctbl";
+    private static final String SOURCE_ROW_COLUMN_NAME = "srcrow";
+
+    public int SOURCE_TABLE = -1;
+    public int SOURCE_ROW;
+
+    protected void addSourceColumns()
+        {
+        SOURCE_TABLE = addColumn( TYPE_TEXT, SOURCE_TABLE_COLUMN_NAME);
+        SOURCE_ROW = addColumn( TYPE_KEY, SOURCE_ROW_COLUMN_NAME);
+        }
+
+    public boolean hasSourceColumns()
+        {
+        return SOURCE_TABLE >= 0;
+        }
+
+    public Class getControllActivity()
+        {
+        return null;
+        }
 
 
     public static final int TYPE_KEY = 0;

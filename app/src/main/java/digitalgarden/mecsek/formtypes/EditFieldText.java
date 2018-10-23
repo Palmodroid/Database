@@ -30,11 +30,11 @@ public class EditFieldText extends EditField
 
     public void pullData(Cursor cursor )
         {
-        setText(cursor.getString(cursor.getColumnIndexOrThrow( column(getColumnIndex() ))));
+        setText(cursor.getString(cursor.getColumnIndexOrThrow( column( columnIndex ))));
         }
 
     public void pushData(ContentValues values)
         {
-        values.put(column( getColumnIndex()), getText().toString() );
+        values.put(column( columnIndex ), getText().toString() );
         }
     }

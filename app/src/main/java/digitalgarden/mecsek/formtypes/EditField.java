@@ -7,8 +7,12 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
+import java.util.List;
+
 import digitalgarden.mecsek.generic.Connection;
 import digitalgarden.mecsek.generic.GenericEditFragment;
+
+import static digitalgarden.mecsek.database.DatabaseMirror.column;
 
 
 // Ez a mező csak annyival tud többet, hogy az értékváltozást jelzi
@@ -30,11 +34,11 @@ public abstract class EditField extends EditText implements Connection.Connectab
         super(context, attrs, defStyle);
     	}
 
-    private int columnIndex;
+    protected int columnIndex;
 
-    public int getColumnIndex()
+    public void addColumn( List<String> columns )
         {
-        return columnIndex;
+        columns.add( column(columnIndex) );
         }
 
     private boolean edited = false;

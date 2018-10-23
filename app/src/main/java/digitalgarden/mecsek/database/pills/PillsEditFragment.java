@@ -12,7 +12,7 @@ import static digitalgarden.mecsek.database.library.LibraryDatabase.PILLS;
 public class PillsEditFragment extends GenericEditFragment
 	{
     @Override
-    protected int defineTableIndex()
+    public int defineTableIndex()
         {
         return PILLS;
         }

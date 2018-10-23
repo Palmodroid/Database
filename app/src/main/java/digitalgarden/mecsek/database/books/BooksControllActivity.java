@@ -12,7 +12,6 @@ import digitalgarden.mecsek.generic.GenericListFragment;
 
 
 public class BooksControllActivity extends GenericControllActivity
-	implements BooksListFragment.OnListReturnedListener, BooksEditFragment.OnFinishedListener
 	{
 
 	@Override
