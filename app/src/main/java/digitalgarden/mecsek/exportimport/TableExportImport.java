@@ -1,6 +1,5 @@
 package digitalgarden.mecsek.exportimport;
 
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -23,6 +22,48 @@ import static digitalgarden.mecsek.database.DatabaseMirror.table;
 import static digitalgarden.mecsek.generic.database.GenericTable.TYPE_DATE;
 import static digitalgarden.mecsek.generic.database.GenericTable.TYPE_TEXT;
 
+
+/**
+ * Minden egyes GenericTable-hez tartozik egy TableExportImport osztály is.
+ * (Ezt a GenericTable.tableExportImport privát változó tárolja, melyet a
+ * GenericTable.exportImport() metódussal kérhetünk el.
+ * Fontos! A TableExportrImport osztálynak szüksége van a context-re (hogy elkérje a
+ * contentResolver-t) Ezt a DatabaseMirror.start() metódus tölti fel a setupContext() metódussal)
+ *
+ * Minden egyes verziónak külön exportimport szabályt állíthatunk fel (vagyis megmondhatjuk, hogy
+ * abban a verzióban melyik oszlopokat exportáljuk/importáljuk.
+ * Az egyes verzióban exportálni/importálni tervezett oszlopokat az <b>exportImportVersions[]</b>
+ * tömb tárolja. (Eggyel több eleme van, mint az utolsó verziószámnak, hiszen azt is tárolnia kell)
+ *
+ * Minden egyes szabály tárolja:
+ *
+ * exportImportColumns listát, mely az egyes - exportálni kívánt - oszlopok indexét tartalmazza.
+ *
+ * exportImportExternKey listát, mely tartalmazza:
+ *      externKeyIndex - foreign key oszlop indexét,
+ *      externTableIndex - foreign table indexét
+ *      externColumns - foreign táblában lévő foreign oszlopok NEVÉT.
+ *
+ * exportImportForeignKey listát, mely tartalmazza:
+ *      foreignKeyIndex - foreign key oszlop indexét,
+ *      foreignTableIndex - foreign table indexét
+ *      foreignColumns - foreign táblában lévő foreign oszlopok NEVÉT.
+ *
+ *  FONTOS!
+ *  
+ *  A foreign key és az extern key is egy külső tábla egyetlen sorára hivatkozik.
+ *  DE! 
+ *  A foreign key csak "kiválasztja" ezt a sort (vagyis több key is hivatkozhat ugyanarra a 
+ *  sorra) Emiatt a foreign táblát előbb importáljuk és abban már minden sornak meg kell lennie.
+ *  Az extern key által hivatkozott sor része ennek az adatsornak, csak másik táblában tároljuk.
+ *  (Emiatt pl. lehetnek azonosak is a sorok ebben a táblában) 
+ *  Ilyenkor nem kikeressük a megfelelő sort az extern táblában, hanem létrehozunk egy új sort az
+ *  hivatkozást tartalmazó adatsor számára.
+ *  Fontos, hogy az extern táblákban NEM szabad exportálni (vagy legalábbis importálni) azokat a 
+ *  sorokat, amelyekhez hivatkozó adatsorok tartoznak.
+ *  
+ * AZ exportálni kívánt részeket az add... metódusokkal adjuk hozzá.
+ */
 public class TableExportImport
     {
     private Cursor cursor;
@@ -33,17 +74,56 @@ public class TableExportImport
     public long ID_NULL = -1L;
 
 
+    private class ExportImportExternKey
+        {
+        // Extern Key column index - a saját táblában
+        int externKeyIndex;
+        // Extern Table index - az idegen tábla // importhoz kell, export a join táblát használja
+        int externTableIndex;
+        // Extern Table szükséges oszlopainak neve
+        String[] externColumns;
+
+        private ExportImportExternKey(int externKeyIndex, int externTableIndex, int... externColumnIndices)
+            {
+            this.externKeyIndex = externKeyIndex;
+            this.externTableIndex = externTableIndex;
+
+            this.externColumns = new String[externColumnIndices.length];
+            for ( int i=0; i<this.externColumns.length; i++ )
+                {
+                this.externColumns[i] = column(externColumnIndices[i]);
+                }
+            }
+        }
+
+
     private class ExportImportForeignKey
         {
+        // Foreign Key column index - a saját táblában
         int foreignKeyIndex;
-        int forignTableIndex;
+        // Foreign Table index - az idegen tábla // importhoz kell, export a join táblát használja
+        int foreignTableIndex;
+        // Foreign Table szükséges oszlopainak neve
         String[] foreignColumns;
+
+        private ExportImportForeignKey(int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
+            {
+            this.foreignKeyIndex = foreignKeyIndex;
+            this.foreignTableIndex = foreignTableIndex;
+
+            this.foreignColumns = new String[foreignColumnIndices.length];
+            for ( int i=0; i<this.foreignColumns.length; i++ )
+                {
+                this.foreignColumns[i] = column(foreignColumnIndices[i]);
+                }
+            }
         }
 
     private class ExportImportVersion
         {
-        private ArrayList<Integer> exportImportColumns = new ArrayList<>();
         private ArrayList<ExportImportForeignKey> exportImportForeignKeys = new ArrayList<>();
+        private ArrayList<Integer> exportImportColumns = new ArrayList<>();
+        private ArrayList<ExportImportExternKey> exportImportExternKeys = new ArrayList<>();
         }
 
     private ExportImportVersion[] exportImportVersions = new ExportImportVersion[database().version()+1];
@@ -99,14 +179,14 @@ public class TableExportImport
     public void addForeignKey(int version, int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
         {
         exportImportVersions[version].exportImportForeignKeys.add(
-                createForeignKey( foreignKeyIndex, foreignTableIndex, foreignColumnIndices) );
+                new ExportImportForeignKey( foreignKeyIndex, foreignTableIndex, foreignColumnIndices) );
         }
 
     public void addForeignKeySomeVersions(int firstVersion, int lastVersion,
                                           int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
         {
         ExportImportForeignKey exportImportForeignKey =
-                createForeignKey( foreignKeyIndex, foreignTableIndex, foreignColumnIndices);
+                new ExportImportForeignKey( foreignKeyIndex, foreignTableIndex, foreignColumnIndices);
 
         for (int n = firstVersion; n <= lastVersion; n++)
             {
@@ -118,7 +198,7 @@ public class TableExportImport
                                           int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
         {
         ExportImportForeignKey exportImportForeignKey =
-                createForeignKey( foreignKeyIndex, foreignTableIndex, foreignColumnIndices);
+                new ExportImportForeignKey( foreignKeyIndex, foreignTableIndex, foreignColumnIndices);
 
         for (int n = firstVersion; n <= database().version(); n++)
             {
@@ -129,7 +209,7 @@ public class TableExportImport
     public void addForeignKeyAllVersions(int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
         {
         ExportImportForeignKey exportImportForeignKey =
-                createForeignKey( foreignKeyIndex, foreignTableIndex, foreignColumnIndices);
+                new ExportImportForeignKey( foreignKeyIndex, foreignTableIndex, foreignColumnIndices);
 
         for (int n = 0; n <= database().version(); n++)
             {
@@ -140,43 +220,119 @@ public class TableExportImport
 
     public void addExternKey(int version, int externKeyIndex, int externTableIndex, int... externColumnIndices)
         {
-        addForeignKey(version, externKeyIndex, externTableIndex, externColumnIndices);
+        exportImportVersions[version].exportImportExternKeys.add(
+                new ExportImportExternKey( externKeyIndex, externTableIndex, externColumnIndices) );
         }
 
     public void addExternKeySomeVersions(int firstVersion, int lastVersion,
                                           int externKeyIndex, int externTableIndex, int... externColumnIndices)
         {
-        addExternKeySomeVersions(firstVersion, lastVersion, externKeyIndex, externTableIndex, externColumnIndices);
+        ExportImportExternKey exportImportExternKey =
+                new ExportImportExternKey( externKeyIndex, externTableIndex, externColumnIndices);
+
+        for (int n = firstVersion; n <= lastVersion; n++)
+            {
+            exportImportVersions[n].exportImportExternKeys.add(exportImportExternKey);
+            }
         }
 
     public void addExternKeyFromVersion(int firstVersion,
                                          int externKeyIndex, int externTableIndex, int... externColumnIndices)
         {
-        addForeignKeyFromVersion( firstVersion, externKeyIndex, externTableIndex, externColumnIndices );
+        ExportImportExternKey exportImportExternKey =
+                new ExportImportExternKey( externKeyIndex, externTableIndex, externColumnIndices);
+
+        for (int n = firstVersion; n <= database().version(); n++)
+            {
+            exportImportVersions[n].exportImportExternKeys.add(exportImportExternKey);
+            }
         }
 
     public void addExternKeyAllVersions(int externKeyIndex, int externTableIndex, int... externColumnIndices)
         {
-        addForeignKeyAllVersions(externKeyIndex, externTableIndex, externColumnIndices);
+        ExportImportExternKey exportImportExternKey =
+                new ExportImportExternKey( externKeyIndex, externTableIndex, externColumnIndices);
+
+        for (int n = 0; n <= database().version(); n++)
+            {
+            exportImportVersions[n].exportImportExternKeys.add(exportImportExternKey);
+            }
         }
 
 
-    private ExportImportForeignKey createForeignKey(int foreignKeyIndex, int foreignTableIndex, int... foreignColumnIndices)
+    protected ContentResolver getContentResolver()
         {
-        ExportImportForeignKey exportImportForeignKey = new ExportImportForeignKey();
+        return context.getContentResolver();
+        }
 
-        exportImportForeignKey.foreignKeyIndex = foreignKeyIndex;
-        exportImportForeignKey.forignTableIndex = foreignTableIndex;
 
-        exportImportForeignKey.foreignColumns = new String[foreignColumnIndices.length];
-        for ( int i=0; i<exportImportForeignKey.foreignColumns.length; i++ )
+    /**
+     * Lekérdezi a join tábla összes sorát az exportálni kívánt oszlopokra. A cursor értéket
+     * az osztályban tárolja. Ezt majd a getNextRow() fogja felhasználni, és a close() bezárni.
+     * @return sorok száma
+     */
+    public int collateRows()
+        {
+        ArrayList<String> projection = new ArrayList<>();
+
+        for ( ExportImportForeignKey foreignKey : version().exportImportForeignKeys )
             {
-            exportImportForeignKey.foreignColumns[i] = column(foreignColumnIndices[i]);
+            for ( String column : foreignKey.foreignColumns)
+                {
+                projection.add( column );
+                }
             }
 
-        return exportImportForeignKey;
+        for ( Integer columnIndex : version().exportImportColumns )
+            {
+            projection.add( column(columnIndex) );
+            }
+
+        for ( ExportImportExternKey externKey : version().exportImportExternKeys )
+            {
+            for ( String column : externKey.externColumns)
+                {
+                projection.add( column );
+                }
+            }
+
+        cursor = getContentResolver().query( table.contentUri(),
+                projection.toArray( new String [0]), null, null, null);
+
+        if (cursor == null)
+            return 0;
+        else
+            return cursor.getCount();
         }
 
+
+    /**
+     *
+     * @return
+     */
+    String getNextRow()
+        {
+        if ( cursor!= null && cursor.moveToNext() )
+            {
+            StringBuilder builder = new StringBuilder();
+
+            builder.append( StringUtils.convertToEscaped( table.name() ));
+
+            String[] data = getRowData(cursor);
+            for (int n=0; n < data.length; n++)
+                {
+                builder.append('\t');
+// Null ellenőrzés!!!
+                builder.append( StringUtils.convertToEscaped( data[n] ));
+                }
+
+            builder.append('\n');
+
+            return builder.toString();
+            }
+        else
+            return null;
+        }
 
 
     protected String[] getRowData(Cursor cursor)
@@ -205,63 +361,18 @@ public class TableExportImport
                 // Ha hibás, akkor hol lesz jelzés??
                 }
             }
+
+        for ( ExportImportExternKey externKey : version().exportImportExternKeys )
+            {
+            for ( String column : externKey.externColumns)
+                {
+                data.add(cursor.getString( cursor.getColumnIndexOrThrow( column )));
+                }
+            }
+
         return data.toArray( new String [0]);
         }
 
-    protected ContentResolver getContentResolver()
-        {
-        return context.getContentResolver();
-        }
-
-    public int collateRows()
-        {
-        ArrayList<String> projection = new ArrayList<>();
-
-        for ( ExportImportForeignKey foreignKey : version().exportImportForeignKeys )
-            {
-            for ( String column : foreignKey.foreignColumns)
-                {
-                projection.add( column );
-                }
-            }
-
-        for ( Integer columnIndex : version().exportImportColumns )
-            {
-            projection.add( column(columnIndex) );
-            }
-
-        cursor = getContentResolver().query( table.contentUri(),
-                projection.toArray( new String [0]), null, null, null);
-
-        if (cursor == null)
-            return 0;
-        else
-            return cursor.getCount();
-        }
-
-    public String getNextRow()
-        {
-        if ( cursor!= null && cursor.moveToNext() )
-            {
-            StringBuilder builder = new StringBuilder();
-
-            builder.append( StringUtils.convertToEscaped( table.name() ));
-
-            String[] data = getRowData(cursor);
-            for (int n=0; n < data.length; n++)
-                {
-                builder.append('\t');
-// Null ellenőrzés!!!
-                builder.append( StringUtils.convertToEscaped( data[n] ));
-                }
-
-            builder.append('\n');
-
-            return builder.toString();
-            }
-        else
-            return null;
-        }
 
     public void close()
         {
@@ -318,7 +429,7 @@ public class TableExportImport
         private class ExportImportForeignKey
             {
             int foreignKeyIndex;
-            int forignTableIndex;
+            int foreignTableIndex;
             String[] foreignColumns;
             }
 
@@ -330,7 +441,7 @@ public class TableExportImport
         for ( ExportImportVersion version : exportImportVersions )
             version = new ExportImportVersion - ez megy vajon??
      */
-
+/////////////////////NINCS BENNE AZ EXTERN RÉSZ//////////////////////////////////
     public void importRow(int version, String[] records)
         {
         int counter = 1;
@@ -347,7 +458,7 @@ public class TableExportImport
                 foreignValues.put(column, StringUtils.revertFromEscaped(records[counter++]));
                 }
 
-            long row = findRow( foreignKey.forignTableIndex, foreignValues);
+            long row = findRow( foreignKey.foreignTableIndex, foreignValues);
 
             if ( row == ID_MISSING )
                 {

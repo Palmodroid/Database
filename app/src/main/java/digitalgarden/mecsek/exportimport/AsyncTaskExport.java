@@ -17,6 +17,15 @@ import static digitalgarden.mecsek.database.DatabaseMirror.allTables;
 import static digitalgarden.mecsek.database.DatabaseMirror.database;
 
 
+/**
+ * Az exportálási folyamatot egy AsyncTask végzi, melyet az AsyncTaskDialogFragment hív majd meg.
+ * A collateRows() rész minden egyes táblát lekérdez, és a lekérdezés eredményét a tábla saját
+ * exportImport osztályában tárolja el. Ennek során az is kiderül, hogy hány sort kell exportálnunk.
+ * !! Lehet, hogy ez is nagyon hosszú lesz, ha igen, majd gondolkodunk a megjelnítésen.
+ * A következő lépésben minden egyes tábla minden egyes - már eltárolt - sorát elkérjük szövegesen
+ * (getNextRow()), és kiírjuk a tábla nevével együtt egy file-ba.
+ * Végül minden egyes tábla cursor-át be kell zárnunk.
+ */
 class AsyncTaskExport extends GenericAsyncTask
 	{
 	// Átadott adatok

@@ -13,7 +13,14 @@ import digitalgarden.mecsek.generic.database.GenericTable;
 import static digitalgarden.mecsek.database.DatabaseMirror.allTables;
 import static digitalgarden.mecsek.database.DatabaseMirror.database;
 
-
+/**
+ * Az importálás folyamata az exporthoz hasonlóan egy AsyncTaskban történik.
+ * Itt a file SORAIT olvssuk be, majd a TAB-ok segítségével adatokra bontjuk.
+ * AZ első adat mindig a táblát határozza meg. Ha a megfelelő táblát megtaláltunk, akkor a sor
+ * adatait átadjuk feldolgozásra az exporImport.importRow() metódusának.
+ * FONTOS! A szöveg fejléce tartalmazza a kiíráskor használt verziószámot is, így a korábbi
+ * verziókban mentett adatokat is vissza tudjuk olvasni.
+ */
 class AsyncTaskImport extends GenericAsyncTask
 	{
 	// Átadott adatok

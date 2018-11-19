@@ -23,6 +23,53 @@ import static digitalgarden.mecsek.database.DatabaseMirror.column_id;
 import static digitalgarden.mecsek.database.DatabaseMirror.database;
 import static digitalgarden.mecsek.database.DatabaseMirror.table;
 
+/**
+ * Az adatbázis tábláinak szerkezetét a GenericTable osztály leszármazottai tükrözik le a
+ * program számára.
+ * A GenericTable segítségével gyűjtjük össze a tábla oszlopait. Néhány kombinált mezőhöz külön
+ * segítséget kapunk.
+ *
+ * Egyszerű adatoszlopok:
+ *
+ *  addColumn( TYPE_KEY vagy TYPE_TEXT vagy TYPE_DATE, "oszlop_neve", boolean unique )
+ *
+ * (az oszlop neve kiegészül a tábla számával is, így minden egyes oszlop egyedi lesz)
+ * (az adat megjelenítését a mező típusa szabályozza (pl. TYPE_DATE esetén DateView
+ * vagy EditFieldDate)
+ *
+ * Keresőoszlop (egyetlen ilyen oszlop lehet!):
+ *
+ * addSearchColumnFor(int columnIndex )
+ *
+ * (Az oszlop tartalma normalizálva - vagyis ékezetek és írásjelek nélkül kerül ide. Ezen adat
+ * alapján történik a keresés.)
+ * (Az exportimport részben a search column NEM szerepel, hanem újra kitöltésre kerül!)
+ *
+ * Külső hivatkozás:
+ *
+ * addForeignKey(String columnName, int referenceTableIndex)
+ *
+ * (A foreign key egy külső tábla egy elemére (sorára) hivatkozik. Maga a külső elem nem
+ * változtatható meg a foreign key-en keresztül, hanem egy másik elem választható ki ugyanabból a
+ * listából.)
+ *
+ * ExportImport?? - először mindig a foreign táblát kell exportálni. Ezt követően a foreign key-t
+ * tartalmazó táblában a foreign key által hivatkozott elemeket is exportáljuk, majd ezeket
+ * keressük ki az import során.)
+ *
+ * addExternKey(String columnName, int referenceTableIndex)
+ *
+ * (Az extern key épp a foreign key fordítottja: az idegen táblában mindig ugyanarra az elemre
+ * mutat (ez nem változtatható meg, viszont maga az elem tartalma változtatható az extern key
+ * felől.)
+ * (Ennek akkor van értelme, ha több különböző tábla azonos szerkezetű részt is tartalmaz, mint
+ * például a naptárbejegyzések. A külső tábla felől viszont az eredeti, létrehozó bejegyzéshez
+ * tudunk visszajutni; mert a táblát és az elem sorszámát is tároljuk.)
+ *
+ * ExportImport?? - itt valószínűleg csak azokat az elemeket kell exportálni, melyeknek NINCS
+ * hivatkozott extern key forrása, mert a hivatkozott elemeket az extern key mellett tudjuk
+ * exportálni.)
+ */
 public abstract class GenericTable
     {
     private int tableId;

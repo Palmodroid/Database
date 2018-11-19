@@ -28,7 +28,7 @@ public final class MedicationsTable extends GenericTable
     public void defineColumns()
         {
         NAME = addColumn( TYPE_TEXT, "name" );
-        DATE = addColumn( TYPE_TEXT, "date" );
+        DATE = addColumn( TYPE_DATE, "date" );
         PILL_ID = addForeignKey( "pill_id", PILLS );
         PATIENT_ID = addForeignKey( "patient_id", PATIENTS );
         CALENDAR_ID = addExternKey( "calendar_id", CALENDAR );
