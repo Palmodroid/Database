@@ -42,6 +42,8 @@ public class ForeignKey implements Connection.Connectable
 
     private long foreignKeyValue = -1L;
 
+    private boolean edited = false;
+
 
     public ForeignKey(GenericEditFragment editFragment, int foreignKeyColumnIndex, int foreignTableIndex )
         {
@@ -167,7 +169,12 @@ public class ForeignKey implements Connection.Connectable
         if (this.selectorCode == selectorCode && id != getValue())
             {
             setValue(id);
-            editFragment.setEdited();
+            edited = true;
             }
+        }
+
+    public boolean isEdited()
+        {
+        return edited;
         }
     }

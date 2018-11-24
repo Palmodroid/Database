@@ -125,4 +125,11 @@ public class SourceFieldButton extends Button implements Connection.Connectable
         sourceTableIndex = data.getInt( column(table(editFragment.defineTableIndex()).SOURCE_TABLE) );
         sourceRowIndex = data.getLong( column(table(editFragment.defineTableIndex()).SOURCE_ROW) );
         }
+
+    @Override
+    public boolean isEdited()
+        {
+        // source button cannot be changed
+        return false;
+        }
     }

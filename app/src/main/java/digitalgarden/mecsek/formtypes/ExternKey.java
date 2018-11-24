@@ -128,6 +128,7 @@ public class ExternKey implements Connection.Connectable
             }
         }
 
+    // Ez kéne a közösbe!!
     private Uri getItemContentUri( long rowIndex )
         {
         return Uri.parse( table( tableIndex ).contentUri() + "/" + rowIndex );
@@ -148,4 +149,10 @@ public class ExternKey implements Connection.Connectable
         connection.retrieveData( data );
         }
 
+    @Override
+    public boolean isEdited()
+        {
+        // extern key cannot be changed (created at most)
+        return false;
+        }
     }

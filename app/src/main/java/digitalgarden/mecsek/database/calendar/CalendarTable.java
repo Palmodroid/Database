@@ -25,6 +25,7 @@ public final class CalendarTable extends GenericTable
     @Override
     public void defineExportImportColumns()
         {
+        exportImport().addNoSourceOnlyAllVersions();
         exportImport().addColumnAllVersions( CalendarTable.NOTE );
         exportImport().addColumnAllVersions( CalendarTable.DATE );
         }

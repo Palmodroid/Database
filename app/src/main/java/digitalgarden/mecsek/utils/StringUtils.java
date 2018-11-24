@@ -104,20 +104,23 @@ public class StringUtils
 	public static String convertToEscaped( String text )
 		{
 		if (text == null)
-			return "";
-		else
-			return text
+			return "\\0";
+
+		return text
 			.replace("\n", "\\n")
-			.replace("\t", "\\t");		
+			.replace("\t", "\\t");
 		}
 		
 	public static String revertFromEscaped( String escapedText )
 		{
 		if (escapedText == null)
 			return "";
-		else
-			return escapedText
-			.replace("\\n", "\n")
-			.replace("\\t", "\t");
+
+        if ( escapedText.equals("\\0"))
+            return null;
+
+        return escapedText
+            .replace("\\n", "\n")
+            .replace("\\t", "\t");
 		}
 	}

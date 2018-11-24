@@ -1,9 +1,11 @@
 package digitalgarden.mecsek.exportimport;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -123,6 +125,7 @@ public class TableExportImport
         {
         private ArrayList<ExportImportForeignKey> exportImportForeignKeys = new ArrayList<>();
         private ArrayList<Integer> exportImportColumns = new ArrayList<>();
+        boolean exportImportNoSourceOnly = false;
         private ArrayList<ExportImportExternKey> exportImportExternKeys = new ArrayList<>();
         }
 
@@ -157,7 +160,7 @@ public class TableExportImport
         exportImportVersions[version].exportImportColumns.add( columnIndex );
         }
 
-    public void addColumnFromVersion(int firstVersion,  int columnType, int columnIndex)
+    public void addColumnFromVersion(int firstVersion, int columnIndex)
         {
         addColumnSomeVersions(firstVersion, database().version(), columnIndex);
         }
@@ -260,6 +263,31 @@ public class TableExportImport
         }
 
 
+    public void addNoSourceOnly(int version)
+        {
+        // Ha van source ÉS csak a source nélkülit akarjuk exportálni, akkor igaz
+        exportImportVersions[version].exportImportNoSourceOnly = table.hasSourceColumns();
+        }
+
+    public void addNoSourceOnlyFromVersion(int firstVersion)
+        {
+        addNoSourceOnlySomeVersions(firstVersion, database().version());
+        }
+
+    public void addNoSourceOnlySomeVersions(int firstVersion, int lastVersion)
+        {
+        for (int n = firstVersion; n <= lastVersion; n++)
+            {
+            addNoSourceOnly(n);
+            }
+        }
+
+    public void addNoSourceOnlyAllVersions()
+        {
+        addNoSourceOnlySomeVersions(0, database().version());
+        }
+
+
     protected ContentResolver getContentResolver()
         {
         return context.getContentResolver();
@@ -274,6 +302,13 @@ public class TableExportImport
     public int collateRows()
         {
         ArrayList<String> projection = new ArrayList<>();
+
+        if ( version().exportImportNoSourceOnly )
+            {
+            // Elvileg csak akkor lehet, ha VAN source tárolás, de az nem biztos,
+            // hogy ebben az adatsorban is tároltuk.
+            projection.add( column (table.SOURCE_TABLE) );
+            }
 
         for ( ExportImportForeignKey foreignKey : version().exportImportForeignKeys )
             {
@@ -339,6 +374,15 @@ public class TableExportImport
         {
         ArrayList<String> data = new ArrayList<>();
 
+        if ( version().exportImportNoSourceOnly )
+            {
+            int column = cursor.getColumnIndexOrThrow( column (table.SOURCE_TABLE));
+            data.add( cursor.isNull(column) ? "Standalone" : "Has source");
+
+            // !! Azt is lehet, hogy visszaadunk egy üres "" stringet, és akkor ezt a sort nem is
+            // exportáljuk, már ha van source-ja
+            }
+
         for ( ExportImportForeignKey foreignKey : version().exportImportForeignKeys )
             {
             for ( String column : foreignKey.foreignColumns)
@@ -366,7 +410,7 @@ public class TableExportImport
             {
             for ( String column : externKey.externColumns)
                 {
-                data.add(cursor.getString( cursor.getColumnIndexOrThrow( column )));
+                data.add( cursor.getString( cursor.getColumnIndexOrThrow( column )));
                 }
             }
 
@@ -441,11 +485,19 @@ public class TableExportImport
         for ( ExportImportVersion version : exportImportVersions )
             version = new ExportImportVersion - ez megy vajon??
      */
-/////////////////////NINCS BENNE AZ EXTERN RÉSZ//////////////////////////////////
     public void importRow(int version, String[] records)
         {
-        int counter = 1;
+        int counter = 1; // A 0. a tábla neve volt
         ContentValues values = new ContentValues();
+
+        if ( exportImportVersions[version].exportImportNoSourceOnly)
+            {
+            if ( counter == records.length || records[counter++].equals("Has source"))
+                {
+                // ezt a sort nem kell importálni, majd a source importálja
+                return;
+                }
+            }
 
         for (ExportImportForeignKey foreignKey : exportImportVersions[version].exportImportForeignKeys)
             {
@@ -492,8 +544,64 @@ public class TableExportImport
             counter ++;
             }
 
-        getContentResolver()
-                .insert(table.contentUri(), values);
+        // extern key-ek előtt létrehozzuk a rekordot
+        // extern key-ek hivatkozása még hiányzik belőle
+        Uri uri = getContentResolver().insert(table.contentUri(), values);
+        long row = ContentUris.parseId(uri);
+
+        // values.clear();
+
+        // Ezen a ponton
+        //      table - a saját táblánk
+        //      row - a saját, új rekordunk sora
+
+        // extern key : létrehozunk egy újat az extern táblában, majd annak a hivatkozási sorával
+        // update-eljük az eredeti rekordot
+        boolean updateNeeded = false;
+        for (ExportImportExternKey externKey : exportImportVersions[version].exportImportExternKeys)
+            {
+            ContentValues externValues = new ContentValues();
+
+            String data;
+            boolean empty = false;
+            for (String column : externKey.externColumns)
+                {
+                if (counter == records.length)
+                    return;
+
+                data = StringUtils.revertFromEscaped(records[counter++]);
+                if ( data == null )
+                    empty = true;
+                externValues.put(column, data);
+                }
+            // bármelyik mező null, akkor nem hozunk létre extern rekordot
+            if (empty)
+                continue;
+
+            if (table( externKey.externTableIndex ).hasSourceColumns())
+                {
+                externValues.put(
+                        column(table( externKey.externTableIndex ).SOURCE_TABLE),
+                        (long) (table.id()));
+                externValues.put(
+                        column(table( externKey.externTableIndex ).SOURCE_ROW),
+                        row);
+                }
+
+            // TÁROLÁS
+            uri = getContentResolver().insert(
+                    table( externKey.externTableIndex ).contentUri(), externValues);
+            long externRow = ContentUris.parseId(uri);
+
+            // Hivatkozás beillesztése
+            values.put( column(externKey.externKeyIndex), externRow );
+            updateNeeded = true;
+            }
+
+        if ( updateNeeded )
+            {
+            getContentResolver().update(Uri.parse( table.contentUri() + "/" + row ), values, null, null);
+            }
         Scribe.debug( table.name() + "[" + records[1] + "] was inserted.");
         }
 

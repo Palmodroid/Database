@@ -35,6 +35,7 @@ public class Connection
         void pushSource( int tableIndex, long rowIndex );
         void saveData(Bundle data);
         void retrieveData(Bundle data);
+        boolean isEdited();
         }
 
     private Context context;
@@ -154,5 +155,15 @@ public class Connection
             {
             connectable.retrieveData( data );
             }
+        }
+
+    public boolean isEdited()
+        {
+        for (Connectable connectable : connectables)
+            {
+            if ( connectable.isEdited() )
+                return true;
+            }
+        return false;
         }
     }

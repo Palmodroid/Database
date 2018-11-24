@@ -16,6 +16,7 @@ import static digitalgarden.mecsek.database.DatabaseMirror.column;
 // Ez a mező csak annyival tud többet, hogy az értékváltozást jelzi
 public class EditFieldDate extends EditField implements View.OnFocusChangeListener
 	{
+    long originalLongtime;
     Longtime longtime = new Longtime();
 
 
@@ -47,13 +48,13 @@ public class EditFieldDate extends EditField implements View.OnFocusChangeListen
     public void onFocusChange(View v, boolean hasFocus)
         {
         Scribe.debug( ((EditFieldDate)v).getText().toString() + " has focus: " + hasFocus);
-        if ( !hasFocus && isEdited() )
-            checkData();
-        fillText( !hasFocus );
+        if ( !hasFocus )
+            getTimeFromText();
+        setTextFromTime( !hasFocus );
         }
 
 
-  public void checkData()
+  public void getTimeFromText()
         {
         if (longtime.setDate(getText().toString()))
             {
@@ -61,22 +62,34 @@ public class EditFieldDate extends EditField implements View.OnFocusChangeListen
             }
         }
 
-    public void fillText( boolean isTextEnabled )
+    public void setTextFromTime(boolean isTextEnabled )
         {
         setText( longtime.toString( isTextEnabled ));
-        clearEdited(); // Merthogy már ellenőrzött értéket írtunk be.
         }
 
     public void pullData(Cursor cursor )
         {
         longtime.set(cursor.getLong(cursor.getColumnIndexOrThrow( column( columnIndex ))));
-        fillText( true );
+        clearEdited();
+        setTextFromTime( true );
         }
 
     public void pushData(ContentValues values)
         {
-        if ( isEdited())
-            checkData(); // Elvileg felesleges, mert focusváltás nélkül nem lehet ide jutni
+        if ( isEdited() )
+            getTimeFromText(); // Elvileg felesleges, mert focusváltás nélkül nem lehet ide jutni
         values.put(column( columnIndex ), longtime.get() );
+        clearEdited();
+        }
+
+    public void clearEdited()
+        {
+        originalLongtime = longtime.get();
+        }
+
+    @Override
+    public boolean isEdited()
+        {
+        return longtime.get() != originalLongtime;
         }
     }

@@ -44,10 +44,11 @@ public abstract class EditField extends EditText implements Connection.Connectab
     private boolean edited = false;
 
     // Pl. EditFieldDate automatikusan javítja a beírást focus váltásakor.
-    protected boolean isEdited()
+    public boolean isEdited()
         {
         return edited;
         }
+
     protected void clearEdited()
         {
         edited = false;
@@ -66,7 +67,6 @@ public abstract class EditField extends EditText implements Connection.Connectab
 	        	if (form.isResumed())
                     {
                     edited = true;
-                    form.setEdited();
                     }
 	        	}
 

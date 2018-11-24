@@ -117,7 +117,7 @@ public abstract class GenericEditFragment extends Fragment
     // a beállítást az egyes Field-ek végzik el.
     // Arra vigyázni kell, hogy a felhasználó csak onResumed állapotban állíthat be értéket
     // viszont a meghívott Activity más állapotban is visszatérhet!
-    private boolean edited = false;
+    // private boolean edited = false;
 
 
     // Az űrlapot két adat azonosítja:
@@ -282,6 +282,13 @@ public abstract class GenericEditFragment extends Fragment
         super. onActivityCreated(savedInstanceState);
         Scribe.note("Genaral EDIT Fragment onActivity Created");
 
+        // CSAK ELLENŐRZÉS
+        if ( connection != null )
+            {
+            Scribe.debug( "EditFragment's variables are reserved" );
+            }
+
+
         connection = new Connection( getContext(), defineTableIndex() );
         setupFormLayout(); // Ezt vajon csak egyszer hívja meg?
 
@@ -291,31 +298,18 @@ public abstract class GenericEditFragment extends Fragment
         // onActivityCreate onCreateView UTÁN kerül meghívásra !!
         // Itt adunk értéket az UI elemeknek (EditText-ről gondoskodik a program)
 
-        // Az ok a kiválasztás volt. Minden OK, csak a kiválasztott elemet kell feltölteni
-        if ( isEdited() )
-            {
-            Scribe.note( "Data was reserved: Id: " + getRowIndex() + ", isEdited: " + edited );
-            // a feltöltés korábban megtörtént!
-            }
-
         // Újraindítás történt, értékekeket kivesszük a rendelkezésre álló csomagból
-        else if (savedInstanceState != null)
+        if (savedInstanceState != null)
             {
             // Korábbi megjegyzés:
             // Az add miatt ez újra meghívásra kerül, de nincs párja, vagyis bemenete, ezért lesz értéke mindig null.
             // Az alapértéket meg kell adni eredendőan, aztán itt csak átállítjuk.
-
-            // KETSZER kerul ez a cucc meghivasra, de csak egyszer kap saved... erteket!
-            edited = savedInstanceState.getBoolean("IS_EDITED");
-
-            Scribe.note("Data from savedInstanceState retrieved: Id: " + getRowIndex() + ", isEdited: " + edited );
             connection.retrieveData( savedInstanceState );
             }
 
         else // alapértéket - elvileg csak itt kell beállítani
             {
             connection.pullData( getRowIndex());
-            Scribe.note("Data set from Arguments: Id: " + getRowIndex() + ", isEdited: " + edited );
             }
 
         }
@@ -341,12 +335,9 @@ public abstract class GenericEditFragment extends Fragment
     public void onSaveInstanceState(Bundle outState)
         {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("IS_EDITED", edited);
 
         // Ez elvileg eredeti módon is jó, de így jobban összhangban van a párjával
         connection.saveData(outState);
-
-        Scribe.note("General EDIT Fragment onSaveInst.: isEdited out:" + edited);
         }
 
     // Két lehetőséget: Add as new ill. Delete csak a menüben ajánlunk fel
@@ -401,18 +392,6 @@ public abstract class GenericEditFragment extends Fragment
         }
 
 
-	public void setEdited()
-		{
-		Scribe.note("General EDIT Fragment: EDITED was set to TRUE");
-		edited = true;
-		}
-	
-	public boolean isEdited()
-		{
-		return edited;
-		}
-
-	
 	public int getCode()
 		{
 		codeGenerator++;
@@ -510,9 +489,7 @@ public abstract class GenericEditFragment extends Fragment
         	return;
         	}
 
-		Scribe.note("CancelEdit: isEdited = " + isEdited() );
-
-		if ( isEdited() )
+		if ( connection.isEdited() )
 			{
 			if (confirmationDialog != null)
 				confirmationDialog.dismiss();
